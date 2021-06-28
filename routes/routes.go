@@ -1,14 +1,15 @@
 package routes
 
 import (
-	file2 "github.com/cryonayes/StajProje/api/file"
-	user2 "github.com/cryonayes/StajProje/api/user"
+	authApi "github.com/cryonayes/StajProje/api"
+	fileApi "github.com/cryonayes/StajProje/api/file"
+	userApi "github.com/cryonayes/StajProje/api/user"
 	"github.com/gofiber/fiber/v2"
 )
 
 func Setup(app *fiber.App) {
 	app.Static("/", "./static")
-	app.Post("/api/register", user2.EndpointRegister)
-	app.Post("/api/upload", file2.EndpointUploadFile)
-
+	app.Post("/api/login", authApi.Login)
+	app.Post("/api/register", userApi.EndpointRegister)
+	app.Post("/api/upload", fileApi.EndpointUploadFile)
 }

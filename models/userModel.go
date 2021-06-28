@@ -3,7 +3,8 @@ package models
 import "encoding/json"
 
 type User struct {
-	Username string `json:"username"`
+	Id       uint   `json:"id"`
+	Username string `json:"username" gorm:"unique"`
 	Password string `json:"password"`
 }
 

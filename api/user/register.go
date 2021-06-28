@@ -6,6 +6,7 @@ import (
 )
 
 func EndpointRegister(c *fiber.Ctx) error {
+	// TODO(Get information with BodyParser)
 	if form, err := c.MultipartForm(); err == nil {
 		if usrName, passwd := form.Value[models.Username], form.Value[models.Password]; len(usrName) > 0 && len(passwd) > 0 {
 			newUser := models.User{

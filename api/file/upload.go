@@ -3,6 +3,7 @@ package file
 import "github.com/gofiber/fiber/v2"
 
 func EndpointUploadFile(c *fiber.Ctx) error {
+	// TODO(Get information from BodyParser)
 	if _, err := c.MultipartForm(); err == nil {
 		// TODO(Check if user is authenticated)
 		// TODO(Validate and upload file with an unique name)
