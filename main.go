@@ -2,17 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/cryonayes/StajProje/file"
-	"github.com/cryonayes/StajProje/user"
+	"github.com/cryonayes/StajProje/routes"
 	"github.com/gofiber/fiber/v2"
 	"os"
 )
 
 func main() {
 	app := fiber.New()
-	app.Static("/", "./static")
-	app.Post("/api/register", user.EndpointRegister)
-	app.Post("/api/upload", file.EndpointUploadFile)
+	routes.Setup(app)
 
 	err := app.Listen(":8080")
 	if err != nil {

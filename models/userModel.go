@@ -1,20 +1,18 @@
-package user
+package models
 
-import (
-	"encoding/json"
-)
+import "encoding/json"
 
-type userData struct {
+type User struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
 const (
-	username = "username"
-	password = "password"
+	Username = "username"
+	Password = "password"
 )
 
-func (d *userData) String() string {
+func (d *User) String() string {
 	marshal, err := json.Marshal(d)
 	if err != nil {
 		return "Error while converting to string"
