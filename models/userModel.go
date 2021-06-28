@@ -8,6 +8,11 @@ type User struct {
 	Password string `json:"password"`
 }
 
+type UserRegister struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 const (
 	Username = "username"
 	Password = "password"

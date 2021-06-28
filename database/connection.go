@@ -10,7 +10,7 @@ var DBConn *gorm.DB
 
 func Connect() {
 
-	dsn := "root:@tcp(localhost:3306)/go_share?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "cryonayes:mysql3366@tcp(localhost:3306)/go_share?charset=utf8mb4&parseTime=True&loc=Local"
 	connection, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {

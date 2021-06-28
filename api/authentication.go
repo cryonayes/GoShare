@@ -2,8 +2,8 @@ package api
 
 import (
 	"github.com/cryonayes/StajProje/database"
+	"github.com/cryonayes/StajProje/errors"
 	"github.com/cryonayes/StajProje/models"
-	"github.com/cryonayes/StajProje/utils"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
@@ -24,13 +24,13 @@ func Login(c *fiber.Ctx) error {
 	database.DBConn.Where("username = ?", data.Username).First(&userData)
 
 	if userData == (models.User{}) {
-		err := utils.NewError(utils.UserNotFound)
+		err := errors.NewError(errors.UserNotFound)
 		return c.JSON(err)
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(data.Password)); err != nil {
 		c.Status(fiber.StatusBadRequest)
-		return c.JSON(utils.NewError(utils.InvalidCredentials))
+		return c.JSON(errors.NewError(errors.InvalidCredentials))
 	}
 
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
@@ -42,7 +42,7 @@ func Login(c *fiber.Ctx) error {
 
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(utils.LoginFailed)
+		return c.JSON(errors.LoginFailed)
 	}
 
 	cookie := fiber.Cookie{
@@ -57,4 +57,34 @@ func Login(c *fiber.Ctx) error {
 		"message": "login-success",
 	})
 
+}
+
+func Register(c *fiber.Ctx) error {
+	var userRegister models.UserRegister
+
+	if err := c.BodyParser(&userRegister); err != nil {
+		mErr := errors.NewError(errors.RegisterFailed)
+		return c.JSON(mErr)
+	}
+
+	password, _ := bcrypt.GenerateFromPassword([]byte(userRegister.Password), 14)
+
+	user := models.User{}
+	database.DBConn.Where("username = ?", userRegister.Username).First(&user)
+
+	if user != (models.User{}) {
+		return c.JSON(errors.NewError(errors.UserAlreadyExists))
+	}
+
+	user = models.User{
+		Username: userRegister.Username,
+		Password: string(password),
+	}
+	dbResponse := database.DBConn.Create(&user)
+
+	if mErr := dbResponse.Error; mErr != nil {
+		return c.JSON(errors.NewError(errors.RegisterFailed))
+	}
+
+	return c.JSON(user)
 }
