@@ -18,6 +18,8 @@ const (
 	Unauthorized       = "Unauthorized!"
 	UploadError        = "Error while uploading file!"
 	FileSavingError    = "Error while saving data!"
+	InvalidUsername    = "Username is invalid!"
+	InvalidPassword    = "Password is invalid!"
 )
 
 func (e *ErrorUtil) String() string {

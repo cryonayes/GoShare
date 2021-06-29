@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/cryonayes/StajProje/api/file"
 	"github.com/cryonayes/StajProje/database"
-	"github.com/cryonayes/StajProje/routes"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html"
 	"os"
@@ -25,7 +24,7 @@ func main() {
 		Views: html.New("./public", ".html"),
 	})
 
-	routes.Setup(app)
+	Setup(app)
 
 	err := app.Listen(":8080")
 	if err != nil {

@@ -71,6 +71,20 @@ func Register(c *fiber.Ctx) error {
 		mErr := errorUtil.NewError(errorUtil.RegisterFailed)
 		return c.JSON(mErr)
 	}
+	if userRegister.Username == "" {
+		return c.JSON(Failure{
+			Success: false,
+			Message: errorUtil.InvalidUsername,
+			Data:    nil,
+		})
+	}
+	if userRegister.Password == "" {
+		return c.JSON(Failure{
+			Success: false,
+			Message: errorUtil.InvalidPassword,
+			Data:    nil,
+		})
+	}
 
 	password, _ := bcrypt.GenerateFromPassword([]byte(userRegister.Password), 14)
 

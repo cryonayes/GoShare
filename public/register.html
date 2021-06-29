@@ -1,14 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>GoShare Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="/static/assets/css/Login-Form-Clean.css">
+    <link rel="stylesheet" href="/static/assets/css/styles.css">
 </head>
-<body>
-<form action="/api/register" method="post">
-  <input type="text" name="username" placeholder="Username">
-  <input type="password" name="password" placeholder="Password">
-  <input type="submit" value="Register">
-</form>
+
+<body><section class="login-clean">
+    <form method="post" action="/api/register">
+        <h2 class="sr-only">Registeration Form</h2>
+        <div class="illustration"><i class="icon ion-log-in"></i></div>
+        <div class="form-group"><input type="text" class="form-control" name="username" placeholder="Username" /></div>
+        <div class="form-group"><input type="password" class="form-control" name="password" placeholder="Password"/></div>
+        <div class="form-group"><button class="btn btn-primary btn-block" type="submit">Register</button></div>
+        <a class="forgot" href="#">Forgot your password?<br /></a>
+    </form>
+</section>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
