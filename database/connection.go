@@ -22,3 +22,5 @@ func Connect() {
 		panic("Database migration error!")
 	}
 }
+
+// Todo(Is disconnecting required ?)

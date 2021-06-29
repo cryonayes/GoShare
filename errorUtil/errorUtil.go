@@ -1,4 +1,4 @@
-package errors
+package errorUtil
 
 import (
 	"encoding/json"
@@ -14,6 +14,8 @@ const (
 	LoginFailed        = "Login failed!"
 	RegisterFailed     = "Registeration failed!"
 	UserAlreadyExists  = "User already exists!"
+	Unauthenticated    = "Unauthenticated!"
+	Unauthorized       = "Unauthorized!"
 )
 
 func (e *ErrorUtil) String() string {
