@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/cryonayes/StajProje/api/file"
 	"github.com/cryonayes/StajProje/database"
 	"github.com/cryonayes/StajProje/routes"
 	"github.com/gofiber/fiber/v2"
@@ -11,6 +12,13 @@ import (
 
 func main() {
 	database.Connect()
+
+	if _, err := os.Stat(file.UploadDir); os.IsNotExist(err) {
+		err := os.Mkdir(file.UploadDir, os.ModeType)
+		if err != nil {
+			_, _ = fmt.Fprintln(os.Stderr, "Cannot create uploads directory!")
+		}
+	}
 
 	app := fiber.New(fiber.Config{
 		// Initialize html template engine

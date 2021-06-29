@@ -13,11 +13,6 @@ type UserRegister struct {
 	Password string `json:"password"`
 }
 
-const (
-	Username = "username"
-	Password = "password"
-)
-
 func (d *User) String() string {
 	marshal, err := json.Marshal(d)
 	if err != nil {

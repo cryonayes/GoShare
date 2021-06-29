@@ -16,6 +16,8 @@ const (
 	UserAlreadyExists  = "User already exists!"
 	Unauthenticated    = "Unauthenticated!"
 	Unauthorized       = "Unauthorized!"
+	UploadError        = "Error while uploading file!"
+	FileSavingError    = "Error while saving data!"
 )
 
 func (e *ErrorUtil) String() string {

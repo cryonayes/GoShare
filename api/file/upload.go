@@ -1,14 +1,40 @@
 package file
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"fmt"
+	"github.com/cryonayes/StajProje/api"
+	"github.com/cryonayes/StajProje/errorUtil"
+	"github.com/cryonayes/StajProje/models"
+	"github.com/gofiber/fiber/v2"
+)
 
-func EndpointUploadFile(c *fiber.Ctx) error {
-	// TODO(Get information from BodyParser)
-	if _, err := c.MultipartForm(); err == nil {
-		// TODO(Check if user is authenticated)
-		// TODO(Validate and upload file with an unique name)
-		// TODO(Add uploaded file's path to database with username associated with it)
-		return c.SendString("Uploading is not available at the moment")
+const (
+	UploadDir = "./uploads"
+)
+
+func EndpointUploadFile(ctx *fiber.Ctx) error {
+	authenticated := api.CheckAuthentication(ctx)
+	if !authenticated {
+		return ctx.JSON(api.Failure{Success: false, Message: errorUtil.Unauthenticated, Data: nil})
 	}
-	return c.SendString("Error while uploading")
+
+	file, err := ctx.FormFile("document")
+	if err != nil {
+		return ctx.JSON(api.Failure{Success: false, Message: errorUtil.UploadError, Data: nil})
+	}
+
+	// TODO(Hash filename)
+	err = ctx.SaveFile(file, fmt.Sprintf("./uploads/%s", file.Filename))
+	if err != nil {
+		return ctx.JSON(api.Failure{Success: false, Message: errorUtil.FileSavingError, Data: nil})
+	}
+
+	return ctx.JSON(&api.Success{
+		Success: true,
+		Message: "File uploaded",
+		Data: models.FileModel{
+			FileName: file.Filename,
+			FileSize: file.Size,
+		},
+	})
 }
