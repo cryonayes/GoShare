@@ -23,6 +23,10 @@ func Connect() {
 	if err != nil {
 		panic("Database migration error!")
 	}
+	err = connection.AutoMigrate(&models.FileModel{})
+	if err != nil {
+		panic("Database migration error!")
+	}
 }
 
 func CheckConnection() bool {

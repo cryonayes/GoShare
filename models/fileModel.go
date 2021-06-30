@@ -1,7 +1,13 @@
 package models
 
+import "time"
+
 type FileModel struct {
-	FileName    string `json:"file_name"`
-	ContentType string `json:"content_type"`
-	FileSize    int64  `json:"file_size"`
+	OrigFileName   string    `json:"orig_file_name"`
+	HashedFileName string    `json:"hashed_file_name" gorm:"unique"`
+	FileType       string    `json:"file_type"`
+	FileSize       int64     `json:"file_size"`
+	Owner          string    `json:"owner"`
+	IsEncrypted    bool      `json:"is_encrypted"`
+	CreationDate   time.Time `json:"creation_date"`
 }

@@ -6,7 +6,7 @@ import (
 )
 
 func ServePrivate(ctx *fiber.Ctx) error {
-	authenticated := api.CheckAuthentication(ctx)
+	authenticated, _ := api.CheckAuthentication(ctx)
 	if !authenticated {
 		return ctx.SendString("You are not authenticated!")
 	}

@@ -1,4 +1,4 @@
-package errorUtil
+package utils
 
 import (
 	"encoding/json"
@@ -24,6 +24,7 @@ const (
 	DatabaseConnErr     = "Database connection failed!"
 	RequestError        = "Invalid request!"
 	InternalServerError = "Internal server error!"
+	InvalidFileType     = "File type not allowed!"
 )
 
 func (e *ApiError) String() string {

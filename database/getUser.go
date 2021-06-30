@@ -1,19 +1,19 @@
 package database
 
 import (
-	"github.com/cryonayes/StajProje/errorUtil"
 	"github.com/cryonayes/StajProje/models"
+	"github.com/cryonayes/StajProje/utils"
 )
 
-func GetUserFromUsername(username string) (*models.User, *errorUtil.ApiError) {
+func GetUserFromUsername(username string) (*models.User, *utils.ApiError) {
 	if connected := CheckConnection(); !connected {
-		return nil, errorUtil.NewJSONError(errorUtil.DatabaseConnErr)
+		return nil, utils.NewJSONError(utils.DatabaseConnErr)
 	}
 
 	var user = &models.User{}
 	err := DBConn.Where("username = ?", username).First(&user).Error
 	if err != nil {
-		return nil, errorUtil.NewJSONError(errorUtil.UserNotFound)
+		return nil, utils.NewJSONError(utils.UserNotFound)
 	}
 
 	return user, nil

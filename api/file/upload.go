@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"github.com/cryonayes/StajProje/api"
 	"github.com/cryonayes/StajProje/database"
-	"github.com/cryonayes/StajProje/errorUtil"
 	"github.com/cryonayes/StajProje/models"
+	"github.com/cryonayes/StajProje/utils"
 	"github.com/gofiber/fiber/v2"
+	"os"
+	"time"
 )
 
 const (
@@ -15,31 +17,54 @@ const (
 
 func EndpointUploadFile(ctx *fiber.Ctx) error {
 	if connected := database.CheckConnection(); !connected {
-		return errorUtil.NewError(errorUtil.DatabaseConnErr)
+		return ctx.JSON(utils.NewJSONError(utils.DatabaseConnErr))
 	}
-	// TODO(Register uploaded file into database with owner information)
-	authenticated := api.CheckAuthentication(ctx)
+
+	authenticated, username := api.CheckAuthentication(ctx)
 	if !authenticated {
-		return ctx.JSON(api.Failure{Success: false, Message: errorUtil.Unauthenticated, Data: nil})
+		return ctx.JSON(api.Failure{Success: false, Message: utils.Unauthenticated, Data: nil})
 	}
 
 	file, err := ctx.FormFile("document")
 	if err != nil {
-		return ctx.JSON(api.Failure{Success: false, Message: errorUtil.UploadError, Data: nil})
+		return ctx.JSON(api.Failure{Success: false, Message: utils.UploadError, Data: nil})
 	}
 
-	// TODO(Hash filename and create unique access code for external access)
-	err = ctx.SaveFile(file, fmt.Sprintf("./uploads/%s", file.Filename))
+	fType, validErr := utils.CheckFileType(file)
+	if validErr != nil || fType == "" {
+		return ctx.JSON(utils.NewJSONError(utils.InvalidFileType))
+	}
+
+	uploadedTime := time.Now()
+	hashedName := utils.GetMD5String(file.Filename + uploadedTime.String())
+
+	uploadedFile := models.FileModel{
+		OrigFileName:   file.Filename,
+		HashedFileName: hashedName + "." + fType,
+		FileType:       fType,
+		FileSize:       file.Size,
+		Owner:          username,
+		IsEncrypted:    false,
+		CreationDate:   time.Now(),
+	}
+	// TODO(Create unique access code for external access)
+	err = ctx.SaveFile(file, fmt.Sprintf("./uploads/%s", uploadedFile.HashedFileName))
 	if err != nil {
-		return ctx.JSON(api.Failure{Success: false, Message: errorUtil.FileSavingError, Data: nil})
+		return ctx.JSON(api.Failure{Success: false, Message: utils.FileSavingError, Data: nil})
+	}
+
+	dbResponse := database.DBConn.Create(&uploadedFile)
+	if mErr := dbResponse.Error; mErr != nil {
+		err := os.Remove(fmt.Sprintf(UploadDir + "/" + uploadedFile.HashedFileName))
+		if err != nil {
+			return ctx.JSON(utils.NewJSONError(utils.UploadError))
+		}
+		return ctx.JSON(utils.NewJSONError(utils.DatabaseConnErr))
 	}
 
 	return ctx.JSON(&api.Success{
 		Success: true,
 		Message: "File uploaded",
-		Data: models.FileModel{
-			FileName: file.Filename,
-			FileSize: file.Size,
-		},
+		Data:    uploadedFile,
 	})
 }

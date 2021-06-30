@@ -2,8 +2,8 @@ package api
 
 import (
 	"github.com/cryonayes/StajProje/database"
-	"github.com/cryonayes/StajProje/errorUtil"
 	"github.com/cryonayes/StajProje/models"
+	"github.com/cryonayes/StajProje/utils"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
@@ -19,16 +19,16 @@ type Claims struct {
 
 func Login(c *fiber.Ctx) error {
 	if connected := database.CheckConnection(); !connected {
-		return c.JSON(errorUtil.NewJSONError(errorUtil.DatabaseConnErr))
+		return c.JSON(utils.NewJSONError(utils.DatabaseConnErr))
 	}
 	var data models.User
 
 	if err := c.BodyParser(&data); err != nil {
-		return c.JSON(errorUtil.NewJSONError(errorUtil.RequestError))
+		return c.JSON(utils.NewJSONError(utils.RequestError))
 	}
 
 	if data.Username == "" || data.Password == "" {
-		return c.JSON(errorUtil.NewJSONError(errorUtil.RequestError))
+		return c.JSON(utils.NewJSONError(utils.RequestError))
 	}
 
 	userData, err := database.GetUserFromUsername(data.Username)
@@ -38,7 +38,7 @@ func Login(c *fiber.Ctx) error {
 
 	if err := bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(data.Password)); err != nil {
 		c.Status(fiber.StatusBadRequest)
-		return c.JSON(errorUtil.NewJSONError(errorUtil.InvalidCredentials))
+		return c.JSON(utils.NewJSONError(utils.InvalidCredentials))
 	}
 
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, &Claims{
@@ -52,7 +52,7 @@ func Login(c *fiber.Ctx) error {
 	if tErr != nil {
 		c.Status(fiber.StatusInternalServerError)
 		c.ClearCookie("token")
-		return c.JSON(errorUtil.InternalServerError)
+		return c.JSON(utils.InternalServerError)
 	}
 
 	cookie := fiber.Cookie{
@@ -70,25 +70,25 @@ func Login(c *fiber.Ctx) error {
 
 func Register(c *fiber.Ctx) error {
 	if connected := database.CheckConnection(); !connected {
-		return errorUtil.NewError(errorUtil.DatabaseConnErr)
+		return utils.NewError(utils.DatabaseConnErr)
 	}
 	var userRegister models.UserRegister
 
 	if err := c.BodyParser(&userRegister); err != nil {
-		mErr := errorUtil.NewJSONError(errorUtil.RegisterFailed)
+		mErr := utils.NewJSONError(utils.RegisterFailed)
 		return c.JSON(mErr)
 	}
 	if userRegister.Username == "" {
 		return c.JSON(Failure{
 			Success: false,
-			Message: errorUtil.InvalidUsername,
+			Message: utils.InvalidUsername,
 			Data:    nil,
 		})
 	}
 	if userRegister.Password == "" {
 		return c.JSON(Failure{
 			Success: false,
-			Message: errorUtil.InvalidPassword,
+			Message: utils.InvalidPassword,
 			Data:    nil,
 		})
 	}
@@ -99,7 +99,7 @@ func Register(c *fiber.Ctx) error {
 	database.DBConn.Where("username = ?", userRegister.Username).First(&user)
 
 	if user != (models.User{}) {
-		return c.JSON(errorUtil.NewJSONError(errorUtil.UserAlreadyExists))
+		return c.JSON(utils.NewJSONError(utils.UserAlreadyExists))
 	}
 
 	user = models.User{
@@ -109,16 +109,16 @@ func Register(c *fiber.Ctx) error {
 	dbResponse := database.DBConn.Create(&user)
 
 	if mErr := dbResponse.Error; mErr != nil {
-		return c.JSON(errorUtil.NewJSONError(errorUtil.RegisterFailed))
+		return c.JSON(utils.NewJSONError(utils.RegisterFailed))
 	}
 
 	return c.JSON(user)
 }
 
-func CheckAuthentication(ctx *fiber.Ctx) bool {
+func CheckAuthentication(ctx *fiber.Ctx) (bool, string) {
 	token := ctx.Cookies("token", "")
 	if token == "" {
-		return false
+		return false, ""
 	}
 	claims := &Claims{}
 	jwtToken, err := jwt.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
@@ -127,7 +127,7 @@ func CheckAuthentication(ctx *fiber.Ctx) bool {
 
 	if err != nil || !jwtToken.Valid {
 		ctx.ClearCookie("token")
-		return false
+		return false, ""
 	}
-	return true
+	return true, claims.Username
 }
