@@ -1,9 +1,11 @@
 package database
 
 import (
+	"fmt"
 	"github.com/cryonayes/StajProje/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"os"
 )
 
 var DBConn *gorm.DB
@@ -23,4 +25,16 @@ func Connect() {
 	}
 }
 
-// Todo(Is disconnecting required ?)
+func CheckConnection() bool {
+	db, err := DBConn.DB()
+	if err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "Database connection failed!")
+		return false
+	}
+	err = db.Ping()
+	if err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "Database connection failed!")
+		return false
+	}
+	return true
+}

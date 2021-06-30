@@ -3,6 +3,7 @@ package file
 import (
 	"fmt"
 	"github.com/cryonayes/StajProje/api"
+	"github.com/cryonayes/StajProje/database"
 	"github.com/cryonayes/StajProje/errorUtil"
 	"github.com/cryonayes/StajProje/models"
 	"github.com/gofiber/fiber/v2"
@@ -13,6 +14,10 @@ const (
 )
 
 func EndpointUploadFile(ctx *fiber.Ctx) error {
+	if connected := database.CheckConnection(); !connected {
+		return errorUtil.NewError(errorUtil.DatabaseConnErr)
+	}
+	// TODO(Register uploaded file into database with owner information)
 	authenticated := api.CheckAuthentication(ctx)
 	if !authenticated {
 		return ctx.JSON(api.Failure{Success: false, Message: errorUtil.Unauthenticated, Data: nil})
@@ -23,7 +28,7 @@ func EndpointUploadFile(ctx *fiber.Ctx) error {
 		return ctx.JSON(api.Failure{Success: false, Message: errorUtil.UploadError, Data: nil})
 	}
 
-	// TODO(Hash filename)
+	// TODO(Hash filename and create unique access code for external access)
 	err = ctx.SaveFile(file, fmt.Sprintf("./uploads/%s", file.Filename))
 	if err != nil {
 		return ctx.JSON(api.Failure{Success: false, Message: errorUtil.FileSavingError, Data: nil})
