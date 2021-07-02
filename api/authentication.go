@@ -19,26 +19,25 @@ type Claims struct {
 
 func Login(c *fiber.Ctx) error {
 	if connected := database.CheckConnection(); !connected {
-		return c.JSON(utils.NewJSONError(utils.DatabaseConnErr))
+		return c.JSON(Failure{Success: false, Message: utils.DatabaseConnErr, Data: nil})
 	}
 	var data models.User
 
 	if err := c.BodyParser(&data); err != nil {
-		return c.JSON(utils.NewJSONError(utils.RequestError))
+		return c.JSON(Failure{Success: false, Message: utils.RequestError, Data: nil})
 	}
 
 	if data.Username == "" || data.Password == "" {
-		return c.JSON(utils.NewJSONError(utils.RequestError))
+		return c.JSON(Failure{Success: false, Message: utils.RequestError, Data: nil})
 	}
 
 	userData, err := database.GetUserFromUsername(data.Username)
 	if err != nil {
-		return c.JSON(err)
+		return c.JSON(Failure{Success: false, Message: utils.UserNotFound, Data: nil})
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(data.Password)); err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(utils.NewJSONError(utils.InvalidCredentials))
+		return c.JSON(Failure{Success: false, Message: utils.InvalidCredentials, Data: nil})
 	}
 
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, &Claims{
@@ -52,7 +51,7 @@ func Login(c *fiber.Ctx) error {
 	if tErr != nil {
 		c.Status(fiber.StatusInternalServerError)
 		c.ClearCookie("token")
-		return c.JSON(utils.InternalServerError)
+		return c.JSON(Failure{Success: false, Message: utils.InternalServerError, Data: nil})
 	}
 
 	cookie := fiber.Cookie{
@@ -75,9 +74,9 @@ func Register(c *fiber.Ctx) error {
 	var userRegister models.UserRegister
 
 	if err := c.BodyParser(&userRegister); err != nil {
-		mErr := utils.NewJSONError(utils.RegisterFailed)
-		return c.JSON(mErr)
+		return c.JSON(Failure{Success: false, Message: utils.RegisterFailed, Data: nil})
 	}
+
 	if userRegister.Username == "" {
 		return c.JSON(Failure{
 			Success: false,
@@ -99,7 +98,7 @@ func Register(c *fiber.Ctx) error {
 	database.DBConn.Where("username = ?", userRegister.Username).First(&user)
 
 	if user != (models.User{}) {
-		return c.JSON(utils.NewJSONError(utils.UserAlreadyExists))
+		return c.JSON(Failure{Success: false, Message: utils.UserAlreadyExists, Data: nil})
 	}
 
 	user = models.User{
@@ -109,10 +108,14 @@ func Register(c *fiber.Ctx) error {
 	dbResponse := database.DBConn.Create(&user)
 
 	if mErr := dbResponse.Error; mErr != nil {
-		return c.JSON(utils.NewJSONError(utils.RegisterFailed))
+		return c.JSON(Failure{Success: false, Message: utils.RegisterFailed, Data: nil})
 	}
 
-	return c.JSON(user)
+	return c.JSON(Success{
+		true,
+		"User registered!",
+		"",
+	})
 }
 
 func CheckAuthentication(ctx *fiber.Ctx) (bool, string) {
