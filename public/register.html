@@ -1,48 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>GoShare Login</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
-    <link rel="stylesheet" href="/static/assets/css/Login-Form-Clean.css">
-    <link rel="stylesheet" href="/static/assets/css/styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
+    <title>Register - Brand</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
+    <link rel="stylesheet" href="assets/css/Custom-File-Upload.css">
 </head>
 
-<body><section class="login-clean">
-    <form method="post" action="/api/register">
-        <h2 class="sr-only">Registeration Form</h2>
-        <div class="illustration"><i class="icon ion-log-in"></i></div>
-        <div class="form-group"><input type="text" id="username" class="form-control" name="username" placeholder="Username" /></div>
-        <div class="form-group"><input type="password" id="password" class="form-control" name="password" placeholder="Password"/></div>
-        <div class="form-group"><button class="btn btn-primary btn-block" type="button" onclick="register()">Register</button></div>
-        <a class="forgot" href="#">Forgot your password?<br /></a>
-    </form>
-</section>
-<script>
-    function register() {
-        let userName = $("#username")[0].value;
-        let passwd   = $("#password")[0].value;
-        $.ajax({
-            type: "POST",
-            url: "/api/register",
-            data: {username: userName, password: passwd},
-            dataType: 'json',
-            async: true,
-            success: function (e) {
-                if (e.success === false) {
-                    alert("Register failed: "+ e.message);
-                }else {
-                    alert("Registeration successful");
-                    location.href = "/login";
-                }
-            }
-        })
-    }
-</script>
+<body class="bg-gradient-primary">
+<div class="container">
+    <div class="card shadow-lg o-hidden border-0 my-5">
+        <div class="card-body p-0">
+            <div class="row">
+                <div class="col-lg-5 d-none d-lg-flex">
+                    <div class="flex-grow-1 bg-register-image" style="background: url(assets/img/network.svg);background-repeat: no-repeat;background-size: contain;background-position: center;"></div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="p-5">
+                        <div class="text-center">
+                            <h4 class="text-dark mb-4">Create an Account!</h4>
+                        </div>
+                        <form class="user">
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0"><input class="form-control form-control-user" type="text" id="fistName" placeholder="First Name" name="first_name"></div>
+                                <div class="col-sm-6"><input class="form-control form-control-user" type="text" id="lastName" placeholder="Last Name" name="last_name"></div>
+                            </div>
+                            <div class="form-group"><input class="form-control form-control-user" type="email" id="exampleInputEmail" aria-describedby="emailHelp" placeholder="Email Address" name="email"></div>
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0"><input class="form-control form-control-user" type="password" id="examplePasswordInput" placeholder="Password" name="password"></div>
+                                <div class="col-sm-6"><input class="form-control form-control-user" type="password" id="exampleRepeatPasswordInput" placeholder="Repeat Password" name="password_repeat"></div>
+                            </div><button class="btn btn-primary btn-block text-white btn-user" type="submit">Register Account</button>
+                            <hr>
+                        </form>
+                        <div class="text-center"><a class="small" href="/forgot">Forgot Password?</a></div>
+                        <div class="text-center"><a class="small" href="/login">Already have an account? Login!</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="assets/js/Custom-File-Upload.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
+<script src="assets/js/theme.js"></script>
 </body>
+
 </html>

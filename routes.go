@@ -12,7 +12,7 @@ func Setup(app *fiber.App) {
 	app.Get("/login", views.ServeLogin)
 	app.Get("/register", views.ServeRegister) // TODO(Register page can be embeded into login page)
 	app.Get("/private", views.ServePrivate)
-	app.Static("/static", "./static")
+	app.Static("/assets", "./static/assets")
 
 	// TODO(app.Group can be used to define subroutes in the future)
 
