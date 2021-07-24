@@ -1,9 +1,9 @@
 package api
 
 import (
-	"github.com/cryonayes/StajProje/database"
-	"github.com/cryonayes/StajProje/models"
-	"github.com/cryonayes/StajProje/utils"
+	"github.com/cryonayes/GoShare/database"
+	models "github.com/cryonayes/GoShare/models"
+	"github.com/cryonayes/GoShare/utils"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"

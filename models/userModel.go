@@ -1,4 +1,4 @@
-package models
+package app_models
 
 import "encoding/json"
 

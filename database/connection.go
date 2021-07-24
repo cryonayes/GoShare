@@ -2,7 +2,7 @@ package database
 
 import (
 	"fmt"
-	"github.com/cryonayes/StajProje/models"
+	"github.com/cryonayes/GoShare/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"os"
@@ -19,11 +19,12 @@ func Connect() {
 		panic("Database connection failed!")
 	}
 	DBConn = connection
-	err = connection.AutoMigrate(&models.User{})
+	// models yanlış
+	err = connection.AutoMigrate(&app_models.User{})
 	if err != nil {
 		panic("Database migration error!")
 	}
-	err = connection.AutoMigrate(&models.FileModel{})
+	err = connection.AutoMigrate(&app_models.FileModel{})
 	if err != nil {
 		panic("Database migration error!")
 	}

@@ -1,0 +1,13 @@
+.registerContainer {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-content: center;
+}
+
+.imageContainer {
+    background: url(../public/assets/img/network.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+}

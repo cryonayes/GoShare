@@ -1,16 +1,27 @@
 package main
 
 import (
+	"embed"
 	"fmt"
-	"github.com/cryonayes/StajProje/api/file"
-	"github.com/cryonayes/StajProje/database"
+	"github.com/cryonayes/GoShare/api/file"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/template/html"
+	"io/fs"
+	"log"
 	"os"
 )
 
+//go:embed nextjs/dist
+//go:embed nextjs/dist/_next
+//go:embed nextjs/dist/_next/static/chunks/pages/*.js
+//go:embed nextjs/dist/_next/static/*/*.js
+var nextFS embed.FS
+
 func main() {
-	database.Connect()
+
+	distFS, err := fs.Sub(nextFS, "nextjs/dist")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if _, err := os.Stat(file.UploadDir); os.IsNotExist(err) {
 		err := os.Mkdir(file.UploadDir, os.ModeType)
@@ -19,14 +30,10 @@ func main() {
 		}
 	}
 
-	app := fiber.New(fiber.Config{
-		// Initialize html template engine
-		Views: html.New("./public", ".html"),
-	})
+	app := fiber.New(fiber.Config{})
+	Setup(app, distFS)
 
-	Setup(app)
-
-	err := app.Listen(":8080")
+	err = app.Listen(":8080")
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, "Cannot initialize server!")
 		return

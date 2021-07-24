@@ -1,8 +1,8 @@
 package database
 
 import (
-	"github.com/cryonayes/StajProje/models"
-	"github.com/cryonayes/StajProje/utils"
+	models "github.com/cryonayes/GoShare/models"
+	"github.com/cryonayes/GoShare/utils"
 )
 
 func GetUserFromUsername(username string) (*models.User, *utils.ApiError) {

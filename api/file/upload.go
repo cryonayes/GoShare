@@ -2,10 +2,10 @@ package file
 
 import (
 	"fmt"
-	"github.com/cryonayes/StajProje/api"
-	"github.com/cryonayes/StajProje/database"
-	"github.com/cryonayes/StajProje/models"
-	"github.com/cryonayes/StajProje/utils"
+	"github.com/cryonayes/GoShare/api"
+	"github.com/cryonayes/GoShare/database"
+	models "github.com/cryonayes/GoShare/models"
+	"github.com/cryonayes/GoShare/utils"
 	"github.com/gofiber/fiber/v2"
 	"os"
 	"time"

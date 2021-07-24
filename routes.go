@@ -1,20 +1,19 @@
 package main
 
 import (
-	authApi "github.com/cryonayes/StajProje/api"
-	fileApi "github.com/cryonayes/StajProje/api/file"
-	"github.com/cryonayes/StajProje/views"
+	"io/fs"
+	"net/http"
+
+	authApi "github.com/cryonayes/GoShare/api"
+	fileApi "github.com/cryonayes/GoShare/api/file"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
 )
 
-func Setup(app *fiber.App) {
-	app.Get("/", views.ServeIndex)
-	app.Get("/login", views.ServeLogin)
-	app.Get("/register", views.ServeRegister) // TODO(Register page can be embeded into login page)
-	app.Get("/private", views.ServePrivate)
-	app.Static("/assets", "./static/assets")
-
-	// TODO(app.Group can be used to define subroutes in the future)
+func Setup(app *fiber.App, fs fs.FS) {
+	app.Use("/", filesystem.New(filesystem.Config{
+		Root: http.FS(fs),
+	}))
 
 	app.Post("/api/login", authApi.Login)
 	app.Post("/api/register", authApi.Register)
