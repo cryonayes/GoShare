@@ -3,11 +3,13 @@ package main
 import (
 	"embed"
 	"fmt"
-	"github.com/cryonayes/GoShare/api/file"
-	"github.com/gofiber/fiber/v2"
 	"io/fs"
 	"log"
 	"os"
+
+	"github.com/cryonayes/GoShare/api/file"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 //go:embed nextjs/dist
@@ -31,6 +33,12 @@ func main() {
 	}
 
 	app := fiber.New(fiber.Config{})
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "https://localhost:3000, http://localhost:3000, http://localhost:8080, https://localhost:8080",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
+
 	Setup(app, distFS)
 
 	err = app.Listen(":8080")

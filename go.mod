@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/gofiber/cors v0.2.2 // indirect
 	github.com/gofiber/fiber/v2 v2.14.0
 	github.com/gofiber/template v1.6.13
 	github.com/h2non/filetype v1.1.1

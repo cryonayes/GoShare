@@ -1,19 +1,20 @@
 package api
 
 import (
+	"time"
+
 	"github.com/cryonayes/GoShare/database"
 	models "github.com/cryonayes/GoShare/models"
 	"github.com/cryonayes/GoShare/utils"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
 var SecretKey = []byte("secret")
 
 type Claims struct {
-	Username string
+	Email string
 	jwt.StandardClaims
 }
 
@@ -27,11 +28,11 @@ func Login(c *fiber.Ctx) error {
 		return c.JSON(Failure{Success: false, Message: utils.RequestError, Data: nil})
 	}
 
-	if data.Username == "" || data.Password == "" {
+	if data.Email == "" || data.Password == "" {
 		return c.JSON(Failure{Success: false, Message: utils.RequestError, Data: nil})
 	}
 
-	userData, err := database.GetUserFromUsername(data.Username)
+	userData, err := database.GetUserFromEmail(data.Email)
 	if err != nil {
 		return c.JSON(Failure{Success: false, Message: utils.UserNotFound, Data: nil})
 	}
@@ -41,7 +42,7 @@ func Login(c *fiber.Ctx) error {
 	}
 
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, &Claims{
-		Username: userData.Username,
+		Email: userData.Email,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 		},
@@ -77,10 +78,10 @@ func Register(c *fiber.Ctx) error {
 		return c.JSON(Failure{Success: false, Message: utils.RegisterFailed, Data: nil})
 	}
 
-	if userRegister.Username == "" {
+	if userRegister.Email == "" {
 		return c.JSON(Failure{
 			Success: false,
-			Message: utils.InvalidUsername,
+			Message: utils.InvalidEmail,
 			Data:    nil,
 		})
 	}
@@ -95,16 +96,17 @@ func Register(c *fiber.Ctx) error {
 	password, _ := bcrypt.GenerateFromPassword([]byte(userRegister.Password), 14)
 
 	user := models.User{}
-	database.DBConn.Where("username = ?", userRegister.Username).First(&user)
+	database.DBConn.Where("email = ?", userRegister.Email).First(&user)
 
 	if user != (models.User{}) {
 		return c.JSON(Failure{Success: false, Message: utils.UserAlreadyExists, Data: nil})
 	}
 
 	user = models.User{
-		Username: userRegister.Username,
+		Email:    userRegister.Email,
 		Password: string(password),
 	}
+
 	dbResponse := database.DBConn.Create(&user)
 
 	if mErr := dbResponse.Error; mErr != nil {
@@ -132,5 +134,5 @@ func CheckAuthentication(ctx *fiber.Ctx) (bool, string) {
 		ctx.ClearCookie("token")
 		return false, ""
 	}
-	return true, claims.Username
+	return true, claims.Email
 }

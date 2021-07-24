@@ -2,6 +2,30 @@ import styles from '../styles/Register.module.css'
 import Head from 'next/head'
 
 function Register(): JSX.Element {
+
+    const registerUser = async event => {
+        event.preventDefault()
+        
+        const res = await fetch('http://localhost:8080/api/register', 
+            {
+              body: JSON.stringify(
+                {
+                    name: event.target.first_name.value,
+                    lastname: event.target.last_name.value,
+                    email: event.target.email.value,
+                    pasword: event.target.password.value,
+                    passwordRepeat: event.target.password_repeat.value
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST'
+            }
+          )
+          const result = await res.json()
+          console.log(result)
+    }
+
     return(
             <>
             <Head>
@@ -9,8 +33,7 @@ function Register(): JSX.Element {
             <meta charSet="utf-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
             <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css" />
-            <link rel="stylesheet"
-                href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" />
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" />
             <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css" />
             <link rel="stylesheet" href="assets/fonts/font-awesome.min.css" />
             <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css" />
@@ -29,7 +52,7 @@ function Register(): JSX.Element {
                                     <div className="text-center">
                                         <h4 className="text-dark mb-4">Create an Account!</h4>
                                     </div>
-                                    <form className="user">
+                                    <form onSubmit={registerUser} method="post" className="user">
                                         <div className="form-group row">
                                             <div className="col-sm-6 mb-3 mb-sm-0">
                                                 <input className="form-control form-control-user" type="text"

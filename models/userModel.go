@@ -4,12 +4,16 @@ import "encoding/json"
 
 type User struct {
 	Id       uint   `json:"id"`
-	Username string `json:"username" gorm:"unique"`
+	Email    string `json:"email" gorm:"unique"`
+	Name     string `json:"name"`
+	LastName string `json:"lastname"`
 	Password string `json:"password"`
 }
 
 type UserRegister struct {
-	Username string `json:"username"`
+	Name     string `json:"name"`
+	LastName string `json:"lastname"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 

@@ -20,6 +20,7 @@ const (
 	UploadError         = "Error while uploading file!"
 	FileSavingError     = "Error while saving data!"
 	InvalidUsername     = "Username is invalid!"
+	InvalidEmail        = "Email is invalid!"
 	InvalidPassword     = "Password is invalid!"
 	DatabaseConnErr     = "Database connection failed!"
 	RequestError        = "Invalid request!"
