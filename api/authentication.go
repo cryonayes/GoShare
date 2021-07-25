@@ -92,6 +92,20 @@ func Register(c *fiber.Ctx) error {
 			Data:    nil,
 		})
 	}
+	if userRegister.Name == "" {
+		return c.JSON(Failure{
+			Success: false,
+			Message: utils.InvalidName,
+			Data:    nil,
+		})
+	}
+	if userRegister.LastName == "" {
+		return c.JSON(Failure{
+			Success: false,
+			Message: utils.InvalidLastname,
+			Data:    nil,
+		})
+	}
 
 	password, _ := bcrypt.GenerateFromPassword([]byte(userRegister.Password), 14)
 
@@ -105,6 +119,8 @@ func Register(c *fiber.Ctx) error {
 	user = models.User{
 		Email:    userRegister.Email,
 		Password: string(password),
+		Name: userRegister.Name,
+		LastName: userRegister.LastName,
 	}
 
 	dbResponse := database.DBConn.Create(&user)

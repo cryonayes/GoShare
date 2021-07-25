@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"fmt"
+	"github.com/cryonayes/GoShare/database"
 	"io/fs"
 	"log"
 	"os"
@@ -40,6 +41,8 @@ func main() {
 	}))
 
 	Setup(app, distFS)
+
+	database.Connect()
 
 	err = app.Listen(":8080")
 	if err != nil {

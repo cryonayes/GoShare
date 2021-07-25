@@ -13,7 +13,7 @@ function Register(): JSX.Element {
                     name: event.target.first_name.value,
                     lastname: event.target.last_name.value,
                     email: event.target.email.value,
-                    pasword: event.target.password.value,
+                    password: event.target.password.value,
                     passwordRepeat: event.target.password_repeat.value
                 }),
                 headers: {

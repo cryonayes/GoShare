@@ -22,6 +22,8 @@ const (
 	InvalidUsername     = "Username is invalid!"
 	InvalidEmail        = "Email is invalid!"
 	InvalidPassword     = "Password is invalid!"
+	InvalidName     	= "Name is invalid!"
+	InvalidLastname     = "Lastname is invalid!"
 	DatabaseConnErr     = "Database connection failed!"
 	RequestError        = "Invalid request!"
 	InternalServerError = "Internal server error!"
