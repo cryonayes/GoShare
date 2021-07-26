@@ -20,13 +20,13 @@ function Register(): JSX.Element {
     }
 
     function successAlertConfirm() {
-        window.location.replace("/login.html")
+        window.location.replace("/login")
     }
 
     const registerUser = async event => {
         event.preventDefault()
         
-        const res = await fetch('http://localhost:8080/api/register', 
+        const res = await fetch('http://localhost:21942/api/register',
             {
               body: JSON.stringify(
                 {
@@ -108,9 +108,9 @@ function Register(): JSX.Element {
                                             Account</button>
                                         <hr />
                                     </form>
-                                    <div className="text-center"><a className="small" href="forgot-password.html">Forgot
+                                    <div className="text-center"><a className="small" href="/forgot-password">Forgot
                                             Password?</a></div>
-                                    <div className="text-center"><a className="small" href="login.html">Already have an account?
+                                    <div className="text-center"><a className="small" href="/login">Already have an account?
                                             Login!</a></div>
                                 </div>
                             </div>

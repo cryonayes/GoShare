@@ -1,13 +1,32 @@
 import styles from '../styles/Login.module.css'
 import Head from 'next/head'
 import {Router} from "next/router";
+import SweetAlert from "react-bootstrap-sweetalert";
+import {useState} from "react";
 
 function Register(): JSX.Element {
+
+    const [successAlert, setSuccessAlert] = useState(false)
+    const [errorAlert, setErrorAlert] = useState(null)
+
+    const showSuccessAlert = () => {
+        setSuccessAlert(true)
+    }
+    const showErrorAlert = (errorMSG) => {
+        setErrorAlert(errorMSG)
+    }
+    const hideErrorAlert = () => {
+        setErrorAlert(null)
+    }
+
+    function successAlertConfirm() {
+        window.location.replace("/dashboard")
+    }
 
     const loginUser = async event => {
         event.preventDefault()
 
-        const res = await fetch('http://localhost:8080/api/login',
+        const res = await fetch('http://localhost:21942/api/login',
             {
                 body: JSON.stringify(
                     {
@@ -23,9 +42,9 @@ function Register(): JSX.Element {
         const result = await res.json()
 
         if(result.success) {
-            console.log(result)
+            showSuccessAlert()
         }else {
-            console.log(result)
+            showErrorAlert(result.message)
         }
     }
 
@@ -78,8 +97,8 @@ function Register(): JSX.Element {
                                                     <br />
                                                 </form>
                                                 <hr/>
-                                                <div className="text-center"><a className="small" href="forgot-password.html">Forgot Password?</a></div>
-                                                <div className="text-center"><a className="small" href="register.html">Create an Account!</a></div>
+                                                <div className="text-center"><a className="small" href="/forgot-password">Forgot Password?</a></div>
+                                                <div className="text-center"><a className="small" href="/register">Create an Account!</a></div>
                                             </div>
                                         </div>
                                     </div>
@@ -87,6 +106,20 @@ function Register(): JSX.Element {
                             </div>
                         </div>
                     </div>
+                    {
+                        successAlert && <SweetAlert onConfirm={successAlertConfirm} confirmBtnText={"Go to dashboard"} title={"Logged in!"}
+                                                    success
+                                                    openAnim={{ name: 'showSweetAlert', duration: 200 }}
+                                                    closeAnim={{ name: 'hideSweetAlert', duration: 200 }}
+                        />
+                    }
+                    {
+                        errorAlert && <SweetAlert onConfirm={hideErrorAlert} title={errorAlert}
+                                                  danger
+                                                  openAnim={{ name: 'showSweetAlert', duration: 200 }}
+                                                  closeAnim={{ name: 'hideSweetAlert', duration: 200 }}
+                        />
+                    }
                 </div>
             </div>
         </>

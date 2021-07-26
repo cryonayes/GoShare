@@ -63,8 +63,10 @@ func Login(c *fiber.Ctx) error {
 	}
 	c.Cookie(&cookie)
 
-	return c.JSON(fiber.Map{
-		"message": "login-success",
+	return c.JSON(Success{
+		Success: true,
+		Message: "Login Success",
+		Data:    nil,
 	})
 }
 

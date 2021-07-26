@@ -6,7 +6,7 @@ function Index(): JSX.Element {
   let router = useRouter();
 
   useEffect(() => {
-    router.push('/login.html');
+    router.push('/login');
   })
 
 
