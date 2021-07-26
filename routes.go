@@ -8,8 +8,17 @@ import (
 )
 
 func Setup(app *fiber.App) {
-	app.Use(cors.New(cors.ConfigDefault))
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "https://localhost:3000, http://localhost:3000, http://localhost:8080, https://localhost:8080",
+		AllowCredentials: true,
+		AllowHeaders: "Origin, Content-Type, Accept, Cookie",
+	}))
+
 	app.Post("/api/login", authApi.Login)
 	app.Post("/api/register", authApi.Register)
+	app.Post("/api/authcheck", authApi.AuthCheckForFrontend)
+
 	app.Post("/api/upload", fileApi.EndpointUploadFile)
+	app.Post("/api/files", fileApi.GetUploadedFiles)
 }

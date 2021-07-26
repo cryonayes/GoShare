@@ -1,7 +1,9 @@
 import styles from '../styles/Register.module.css'
 import Head from 'next/head'
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import SweetAlert from "react-bootstrap-sweetalert";
+import {useRouter} from "next/router";
+import checkAuth from "../utils/authCheck";
 
 
 function Register(): JSX.Element {
@@ -50,6 +52,17 @@ function Register(): JSX.Element {
             showErrorAlert(result.message)
         }
     }
+
+    let router = useRouter()
+
+    useEffect(()=> {
+        checkAuth().then((auth) => {
+            console.log(auth);
+            if (auth) {
+                router.push("/dashboard")
+            }
+        })
+    })
 
     return(
             <>

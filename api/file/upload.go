@@ -16,11 +16,12 @@ const (
 )
 
 func EndpointUploadFile(ctx *fiber.Ctx) error {
+	// TODO(Convert to api failure)
 	if connected := database.CheckConnection(); !connected {
 		return ctx.JSON(utils.NewJSONError(utils.DatabaseConnErr))
 	}
 
-	authenticated, username := api.CheckAuthentication(ctx)
+	authenticated, userEmail := api.CheckAuthentication(ctx)
 	if !authenticated {
 		return ctx.JSON(api.Failure{Success: false, Message: utils.Unauthenticated, Data: nil})
 	}
@@ -30,20 +31,22 @@ func EndpointUploadFile(ctx *fiber.Ctx) error {
 		return ctx.JSON(api.Failure{Success: false, Message: utils.UploadError, Data: nil})
 	}
 
+	// TODO(Convert to api failure)
 	fType, validErr := utils.CheckFileType(file)
 	if validErr != nil || fType == "" {
 		return ctx.JSON(utils.NewJSONError(utils.InvalidFileType))
 	}
 
 	uploadedTime := time.Now()
-	hashedName := utils.GetMD5String(file.Filename + uploadedTime.String())
+	hashedFileName := utils.GetMD5String(file.Filename + uploadedTime.String())
+	// hashedUserMail := utils.GetMD5String(userEmail)
 
 	uploadedFile := models.FileModel{
 		OrigFileName:   file.Filename,
-		HashedFileName: hashedName + "." + fType,
+		HashedFileName: hashedFileName + "." + fType,
 		FileType:       fType,
 		FileSize:       file.Size,
-		Owner:          username,
+		Owner:          userEmail,
 		IsEncrypted:    false,
 		CreationDate:   time.Now(),
 	}
@@ -64,7 +67,7 @@ func EndpointUploadFile(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(&api.Success{
 		Success: true,
-		Message: "File uploaded",
+		Message: "File uploaded!",
 		Data:    uploadedFile,
 	})
 }

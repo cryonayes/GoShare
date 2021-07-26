@@ -55,18 +55,10 @@ func Login(c *fiber.Ctx) error {
 		return c.JSON(Failure{Success: false, Message: utils.InternalServerError, Data: nil})
 	}
 
-	cookie := fiber.Cookie{
-		Name:     "token",
-		Value:    token,
-		Expires:  time.Now().Add(time.Hour * 24),
-		HTTPOnly: true,
-	}
-	c.Cookie(&cookie)
-
 	return c.JSON(Success{
 		Success: true,
 		Message: "Login Success",
-		Data:    nil,
+		Data:    token,
 	})
 }
 
@@ -139,18 +131,40 @@ func Register(c *fiber.Ctx) error {
 }
 
 func CheckAuthentication(ctx *fiber.Ctx) (bool, string) {
-	token := ctx.Cookies("token", "")
-	if token == "" {
+	JWTtoken := struct {
+		Token string `json:"token"`
+	}{}
+
+	err := ctx.BodyParser(&JWTtoken)
+	if err != nil || JWTtoken.Token == ""{
 		return false, ""
 	}
+
 	claims := &Claims{}
-	jwtToken, err := jwt.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
+	jwtToken, err := jwt.ParseWithClaims(JWTtoken.Token, claims, func(t *jwt.Token) (interface{}, error) {
 		return SecretKey, nil
 	})
 
 	if err != nil || !jwtToken.Valid {
-		ctx.ClearCookie("token")
 		return false, ""
 	}
 	return true, claims.Email
+}
+
+func AuthCheckForFrontend(ctx *fiber.Ctx) error {
+	auth, mail := CheckAuthentication(ctx)
+
+	if auth || mail != "" {
+		return ctx.JSON(Success{
+			Success: true,
+			Message: "Authenticated!",
+			Data:    nil,
+		})
+	}else {
+		return ctx.JSON(Failure{
+			Success: false,
+			Message: "Unauthenticated!",
+			Data:    nil,
+		})
+	}
 }
