@@ -1,12 +1,38 @@
 import styles from '../styles/Login.module.css'
 import Head from 'next/head'
+import {Router} from "next/router";
 
 function Register(): JSX.Element {
+
+    const loginUser = async event => {
+        event.preventDefault()
+
+        const res = await fetch('http://localhost:8080/api/login',
+            {
+                body: JSON.stringify(
+                    {
+                        email: event.target.email.value,
+                        password: event.target.password.value,
+                    }),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST'
+            }
+        )
+        const result = await res.json()
+
+        if(result.success) {
+            console.log(result)
+        }else {
+            console.log(result)
+        }
+    }
 
     return(
         <>
             <Head>
-                <title>Register - Brand</title>
+                <title>Login - GoShare</title>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
                 <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css" />
@@ -30,7 +56,7 @@ function Register(): JSX.Element {
                                                 <div className="text-center">
                                                     <h4 className="text-dark mb-4">Welcome Back!</h4>
                                                 </div>
-                                                <form className="user">
+                                                <form onSubmit={loginUser} className="user">
                                                     <div className="form-group"><input
                                                         className="form-control form-control-user" type="email"
                                                         id="exampleInputEmail" aria-describedby="emailHelp"
@@ -51,6 +77,7 @@ function Register(): JSX.Element {
                                                     <button className="btn btn-primary btn-block text-white btn-user" type="submit">Login</button>
                                                     <br />
                                                 </form>
+                                                <hr/>
                                                 <div className="text-center"><a className="small" href="forgot-password.html">Forgot Password?</a></div>
                                                 <div className="text-center"><a className="small" href="register.html">Create an Account!</a></div>
                                             </div>

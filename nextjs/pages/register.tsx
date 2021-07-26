@@ -3,8 +3,8 @@ import Head from 'next/head'
 import {useState} from "react";
 import SweetAlert from "react-bootstrap-sweetalert";
 
-function Register(): JSX.Element {
 
+function Register(): JSX.Element {
 
     const [successAlert, setSuccessAlert] = useState(false)
     const [errorAlert, setErrorAlert] = useState(null)
