@@ -1,7 +1,27 @@
 import styles from '../styles/Register.module.css'
 import Head from 'next/head'
+import {useState} from "react";
+import SweetAlert from "react-bootstrap-sweetalert";
 
 function Register(): JSX.Element {
+
+
+    const [successAlert, setSuccessAlert] = useState(false)
+    const [errorAlert, setErrorAlert] = useState(null)
+
+    const showSuccessAlert = () => {
+        setSuccessAlert(true)
+    }
+    const showErrorAlert = (errorMSG) => {
+        setErrorAlert(errorMSG)
+    }
+    const hideErrorAlert = () => {
+        setErrorAlert(null)
+    }
+
+    function successAlertConfirm() {
+        window.location.replace("/login.html")
+    }
 
     const registerUser = async event => {
         event.preventDefault()
@@ -22,8 +42,13 @@ function Register(): JSX.Element {
                 method: 'POST'
             }
           )
-          const result = await res.json()
-          console.log(result)
+        const result = await res.json()
+
+        if(result.success) {
+            showSuccessAlert()
+        }else {
+            showErrorAlert(result.message)
+        }
     }
 
     return(
@@ -92,6 +117,20 @@ function Register(): JSX.Element {
                         </div>
                     </div>
                 </div>
+                {
+                    successAlert && <SweetAlert onConfirm={successAlertConfirm} confirmBtnText={"Go to login"} title={"Registered!"}
+                                                success
+                                                openAnim={{ name: 'showSweetAlert', duration: 200 }}
+                                                closeAnim={{ name: 'hideSweetAlert', duration: 200 }}
+                    />
+                }
+                {
+                    errorAlert && <SweetAlert onConfirm={hideErrorAlert} title={errorAlert}
+                                              danger
+                                              openAnim={{ name: 'showSweetAlert', duration: 200 }}
+                                              closeAnim={{ name: 'hideSweetAlert', duration: 200 }}
+                    />
+                }
             </div>
         </div>
         </>
