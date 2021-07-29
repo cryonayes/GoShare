@@ -9,6 +9,7 @@ function Register(): JSX.Element {
 
     const [successAlert, setSuccessAlert] = useState(false)
     const [errorAlert, setErrorAlert] = useState(null)
+    const mRouter = useRouter()
 
     const showSuccessAlert = () => {
         setSuccessAlert(true)
@@ -21,7 +22,7 @@ function Register(): JSX.Element {
     }
 
     function successAlertConfirm() {
-        window.location.replace("/dashboard")
+        mRouter.push("/dashboard")
     }
 
     const loginUser = async event => {

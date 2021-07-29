@@ -1,0 +1,17 @@
+.uploadContainer {
+    border-style: dotted;
+    border-radius: 1rem;
+    padding: 2rem;
+    font-size: 1.5rem;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.alignCenter {
+    align-self: center;
+}
+
+.marginZero {
+    margin: 0;
+}

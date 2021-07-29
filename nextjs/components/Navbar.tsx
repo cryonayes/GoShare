@@ -1,4 +1,20 @@
-function Navbar() : JSX.Element {
+import {useRouter} from "next/router";
+
+function Navbar(props) : JSX.Element {
+
+    let mRouter = useRouter()
+
+    const itemStyle = {
+        display: "inline",
+        padding: "0 .75rem",
+        "text-decoration": "none"
+    }
+
+    const onLogout = () => {
+        localStorage.removeItem("token")
+        mRouter.push("/login")
+    }
+
     return (
         <nav className="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
             <div className="container-fluid">
@@ -12,8 +28,9 @@ function Navbar() : JSX.Element {
                     </div>
                 </form>
                 <ul className="navbar-nav flex-nowrap ml-auto">
-                    <li className="nav-item dropdown no-arrow mx-1">
-                        <a className="nav-link" style={{textAlign: "center"}} href="#">Ayberk ESER</a>
+                    <li className="nav-item no-arrow mx-1">
+                        <a style={itemStyle} href="#">{props.name} {props.lastname}</a>
+                        <a style={itemStyle} href="#" onClick={onLogout}>Logout</a>
                     </li>
                 </ul>
             </div>
