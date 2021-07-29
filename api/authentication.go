@@ -55,10 +55,18 @@ func Login(c *fiber.Ctx) error {
 		return c.JSON(Failure{Success: false, Message: utils.InternalServerError, Data: nil})
 	}
 
+	cookie := fiber.Cookie{
+		Name:     "token",
+		Value:    token,
+		Expires:  time.Now().Add(time.Hour * 24),
+		HTTPOnly: true,
+	}
+	c.Cookie(&cookie)
+
 	return c.JSON(Success{
 		Success: true,
 		Message: "Login Success",
-		Data:    token,
+		Data:    nil, // Token artık cookie ve X-TOKEN header'ında
 	})
 }
 
@@ -131,23 +139,43 @@ func Register(c *fiber.Ctx) error {
 }
 
 func CheckAuthentication(ctx *fiber.Ctx) (bool, string) {
-	JWTtoken := struct {
-		Token string `json:"token"`
-	}{}
 
-	err := ctx.BodyParser(&JWTtoken)
-	if err != nil || JWTtoken.Token == ""{
+	var token = ctx.Cookies("token", "")
+
+	if token == "" {
+		token = string(ctx.Request().Header.Peek("X-TOKEN"))
+	}
+
+	if token == "" {
 		return false, ""
 	}
 
+	/*
+		JWTtoken := struct {
+		Token string `json:"token"`
+		}{}
+
+		err := ctx.BodyParser(&JWTtoken)
+		if err != nil || JWTtoken.Token == ""{
+			return false, ""
+		}
+	*/
+
 	claims := &Claims{}
-	jwtToken, err := jwt.ParseWithClaims(JWTtoken.Token, claims, func(t *jwt.Token) (interface{}, error) {
+	jwtToken, err := jwt.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
 		return SecretKey, nil
 	})
 
+	/*
+		jwtToken, err := jwt.ParseWithClaims(JWTtoken.Token, claims, func(t *jwt.Token) (interface{}, error) {
+			return SecretKey, nil
+		})
+	*/
 	if err != nil || !jwtToken.Valid {
+		ctx.ClearCookie("token")
 		return false, ""
 	}
+
 	return true, claims.Email
 }
 

@@ -28,7 +28,7 @@ function Register(): JSX.Element {
     const loginUser = async event => {
         event.preventDefault()
 
-        const res = await fetch('http://localhost:21942/api/login',
+        const res = await fetch('http://localhost:3000/api/login',
             {
                 body: JSON.stringify(
                     {
@@ -45,7 +45,6 @@ function Register(): JSX.Element {
 
         if (result.success) {
             showSuccessAlert()
-            localStorage.setItem("token", result.data)
         } else {
             showErrorAlert(result.message)
         }

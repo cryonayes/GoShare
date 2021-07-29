@@ -28,7 +28,7 @@ function Register(): JSX.Element {
     const registerUser = async event => {
         event.preventDefault()
         
-        const res = await fetch('http://localhost:21942/api/register',
+        const res = await fetch('http://localhost:3000/api/register',
             {
               body: JSON.stringify(
                 {

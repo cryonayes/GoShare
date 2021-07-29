@@ -5,9 +5,8 @@ interface resp {
 }
 
 let checkAuth = async () => {
-    const res = await fetch('http://localhost:21942/api/authcheck',
+    const res = await fetch('http://localhost:3000/api/authcheck',
         {
-            body: JSON.stringify({token: localStorage.getItem("token")}),
             headers: {
                 'Content-Type': 'application/json',
             },
