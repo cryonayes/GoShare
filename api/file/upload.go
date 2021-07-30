@@ -26,7 +26,7 @@ func EndpointUploadFile(ctx *fiber.Ctx) error {
 		return ctx.JSON(api.Failure{Success: false, Message: utils.Unauthenticated, Data: nil})
 	}
 
-	file, err := ctx.FormFile("document")
+	file, err := ctx.FormFile("testFile")
 	if err != nil {
 		return ctx.JSON(api.Failure{Success: false, Message: utils.UploadError, Data: nil})
 	}

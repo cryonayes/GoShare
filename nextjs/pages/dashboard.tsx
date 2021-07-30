@@ -46,16 +46,17 @@ function Dashboard(): JSX.Element {
                             <Navbar name={data.data.name} lastname={data.data.lastname}/>
                             <div className={"container-fluid"}>
                                 <FileContainer>
-                                    <File dropdownID={1}/>
-                                    <File dropdownID={2}/>
-                                    <File dropdownID={3}/>
+                                    {
+                                        (data.data.files).map((file, idx) => {
+                                            return (<File filename={file.filename} dropdownID={idx}/>)
+                                        })
+                                    }
                                 </FileContainer>
                                 <FileUpload/>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </>
         ) : (<></>)
     );

@@ -24,7 +24,20 @@ function handleLogin(req: NextApiRequest, res : NextApiResponse) {
     })
 }
 
-function handleRegister(req: NextApiRequest, res : NextApiResponse) {}
+function handleLogout(req: NextApiRequest, res : NextApiResponse) {
+    res.setHeader("set-cookie", "token=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT");
+    res.end()
+}
+
+function handleRegister(req: NextApiRequest, res : NextApiResponse) {
+    let apiUrl = "http://localhost:21942/api/register";
+
+    fetchDefault(apiUrl, JSON.stringify(req.body), req.headers, "POST").then(async r => {
+        let json = await r.json()
+        res.json(json)
+        res.end()
+    })
+}
 
 function handleAuthCheck(req: NextApiRequest, res : NextApiResponse) {
 
@@ -56,6 +69,10 @@ const handler = (req: NextApiRequest, res : NextApiResponse) => {
     switch (req.url) {
         case "/api/login":
             handleLogin(req, res);
+            break;
+
+        case "/api/logout":
+            handleLogout(req, res);
             break;
 
         case "/api/register":

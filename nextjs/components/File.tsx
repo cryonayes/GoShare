@@ -19,7 +19,7 @@ function File(props) : JSX.Element {
                         <div className="row align-items-center no-gutters">
                             <div className="col-auto"><i className="far fa-file fa-2x text-gray-800"/></div>
                             <div className="col ml-2">
-                                <div className="text-dark font-weight-bold h5 mb-0"><span>File</span></div>
+                                <div className="text-dark font-weight-bold h5 mb-0"><span>{props.filename}</span></div>
                             </div>
                             <div className="col-auto">
                                 <div className="dropdown no-arrow">

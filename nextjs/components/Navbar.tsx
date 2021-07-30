@@ -10,9 +10,16 @@ function Navbar(props) : JSX.Element {
         "text-decoration": "none"
     }
 
-    const onLogout = () => {
-        localStorage.removeItem("token")
-        mRouter.push("/login")
+    const onLogout = async () => {
+        await fetch('http://localhost:3000/api/logout',
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST'
+            }
+        )
+        await mRouter.push("/login")
     }
 
     return (

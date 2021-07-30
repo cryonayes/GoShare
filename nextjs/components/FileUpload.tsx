@@ -1,8 +1,61 @@
-import {useDropzone} from 'react-dropzone'
+import {DropEvent, FileRejection, useDropzone} from 'react-dropzone'
 import styles from "../styles/FileUpload.module.css"
 
 function FileUpload() {
-    const {acceptedFiles, getRootProps, getInputProps} = useDropzone();
+
+    const allowedTypes = [
+        "text/plain",
+        "text/html",
+        "text/css",
+        "text/javascript",
+        "text/xml",
+        "image/gif",
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/svg+xml",
+        "application/json",
+        "application/pdf",
+        "video/3gpp",
+        "video/mp4",
+        "video/webm",
+    ]
+
+    // TODO(Add file proxy)
+    const uploadFile = (file : File) => {
+        let url = "http://localhost:3000/api/upload";
+
+        let formData = new FormData();
+        formData.append("testFile", file)
+
+        fetch(url, {
+            method: "POST",
+            body: formData,
+        }).then(r => {
+            console.log(r);
+        })
+    }
+
+    const dropAccepted = (files: File[], event: DropEvent) => {
+        (files.map((file) => {
+            console.log("Uploading: " + file.name)
+            uploadFile(file)
+        }))
+    }
+
+    const dropRejected = (files: FileRejection[], event: DropEvent) => {
+        (files.map((file) => {
+            console.log("Rejected: " + JSON.stringify(file))
+        }))
+    }
+
+    const {acceptedFiles, getRootProps, getInputProps} = useDropzone({
+        accept: allowedTypes,
+        onDropRejected: dropRejected,
+        onDropAccepted: dropAccepted,
+
+    });
+
 
     const files = acceptedFiles.map(file => (
         <li key={file.name}>
