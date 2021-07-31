@@ -52,7 +52,6 @@ function FileUpload() {
         accept: allowedTypes,
         onDropRejected: dropRejected,
         onDropAccepted: dropAccepted,
-
     });
 
 

@@ -20,9 +20,6 @@ async function fetcher() {
 
 function Dashboard(): JSX.Element {
 
-
-    const { data } = useSWR('/api/files', fetcher)
-
     const [userLoggedin, setUserLoggedin] = useState(false)
     let router = useRouter()
 
@@ -34,7 +31,9 @@ function Dashboard(): JSX.Element {
                 setUserLoggedin(true)
             }
         })
-    })
+    }, [])
+
+    const { data } = useSWR('/api/files', fetcher)
 
     return (
         (userLoggedin && data) ? (

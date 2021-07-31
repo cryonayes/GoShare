@@ -1,5 +1,11 @@
 import {NextApiRequest, NextApiResponse} from "next";
 
+const apiURLs = {
+    "/api/files" : "http://localhost:21942/api/files",
+    "/api/authcheck" : "http://localhost:21942/api/authcheck",
+    "/api/register" : "http://localhost:21942/api/register"
+}
+
 async function fetchDefault(url : string, body : string, headers, method : "GET" | "POST") {
     return await fetch(url,
         {
@@ -29,35 +35,15 @@ function handleLogout(req: NextApiRequest, res : NextApiResponse) {
     res.end()
 }
 
-function handleRegister(req: NextApiRequest, res : NextApiResponse) {
-    let apiUrl = "http://localhost:21942/api/register";
+function handleAPIs(req : NextApiRequest, res : NextApiResponse) {
+    let apiUrl = apiURLs[req.url] || undefined
+
+    if (apiUrl === undefined) {
+        res.json({success: false, message: "Invalid endpoint", data: null})
+        res.end()
+    }
 
     fetchDefault(apiUrl, JSON.stringify(req.body), req.headers, "POST").then(async r => {
-        let json = await r.json()
-        res.json(json)
-        res.end()
-    })
-}
-
-function handleAuthCheck(req: NextApiRequest, res : NextApiResponse) {
-
-    let apiUrl = "http://localhost:21942/api/authcheck";
-
-    req.headers["X-TOKEN"] = req.cookies.token;
-
-    fetchDefault(apiUrl, "", req.headers, "POST").then(async r => {
-        let json = await r.json()
-        res.json(json)
-        res.end()
-    })
-}
-
-function handleUserFiles(req : NextApiRequest, res : NextApiResponse) {
-    let apiUrl = "http://localhost:21942/api/files";
-
-    req.headers["X-TOKEN"] = req.cookies.token;
-
-    fetchDefault(apiUrl, "", req.headers, "POST").then(async r => {
         let json = await r.json()
         res.json(json)
         res.end()
@@ -75,16 +61,8 @@ const handler = (req: NextApiRequest, res : NextApiResponse) => {
             handleLogout(req, res);
             break;
 
-        case "/api/register":
-            handleRegister(req, res);
-            break;
-
-        case "/api/authcheck":
-            handleAuthCheck(req, res);
-            break;
-
-        case "/api/files":
-            handleUserFiles(req, res);
+        default:
+            handleAPIs(req, res);
             break;
     }
 
