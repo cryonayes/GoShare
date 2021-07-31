@@ -21,12 +21,11 @@ function FileUpload() {
         "video/webm",
     ]
 
-    // TODO(Add file proxy)
     const uploadFile = (file : File) => {
         let url = "http://localhost:3000/api/upload";
 
         let formData = new FormData();
-        formData.append("testFile", file)
+        formData.set("testFile", file)
 
         fetch(url, {
             method: "POST",

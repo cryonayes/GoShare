@@ -12,7 +12,7 @@ func Setup(app *fiber.App) {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "https://localhost:3000, http://localhost:3000, http://localhost:8080, https://localhost:8080",
 		AllowCredentials: true,
-		AllowHeaders: "Origin, Content-Type, Accept, Cookie, X-TOKEN",
+		AllowHeaders: "Origin, Content-Type, Content-Length, Accept, Cookie, X-TOKEN",
 	}))
 
 	app.Post("/api/login", authApi.Login)
