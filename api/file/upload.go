@@ -31,10 +31,9 @@ func EndpointUploadFile(ctx *fiber.Ctx) error {
 		return ctx.JSON(api.Failure{Success: false, Message: utils.UploadError, Data: nil})
 	}
 
-	// TODO(Convert to api failure)
 	fType, validErr := utils.CheckFileType(file)
 	if validErr != nil || fType == "" {
-		return ctx.JSON(utils.NewJSONError(utils.InvalidFileType))
+		return ctx.JSON(api.Failure{Success: false, Message: utils.InvalidFileType, Data: nil})
 	}
 
 	uploadedTime := time.Now()

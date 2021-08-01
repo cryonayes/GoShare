@@ -1,7 +1,11 @@
 import {DropEvent, FileRejection, useDropzone} from 'react-dropzone'
 import styles from "../styles/FileUpload.module.css"
+import {useState} from "react";
 
 function FileUpload(props) {
+
+    const [list, setList] = useState<File[]>([])
+    let uploadingList = [] as File[]
 
     const allowedTypes = [
         "text/plain",
@@ -21,46 +25,55 @@ function FileUpload(props) {
         "video/webm",
     ]
 
-    const uploadFile = (file : File) => {
+    const uploadFile = async (file: File): Promise<APIResponse> => {
         let url = "http://localhost:3000/api/upload";
 
         let formData = new FormData();
         formData.set("testFile", file)
 
-        fetch(url, {
-            method: "POST",
-            body: formData,
-        }).then(async r => {
-            let mData = await r.json() as APIResponseUpload
-            props.onUpload()
+        let mData = await fetch(url, {method: "POST", body: formData})
+        let jsonData = await mData.json() as APIResponse
+
+        return new Promise(((resolve, reject) => {
+            if (jsonData.success) {
+                resolve(jsonData)
+            }else {
+                reject(jsonData)
+            }
+        }))
+    }
+
+    const dropAccepted = (filesAccepted: File[]) => {
+        setList(filesAccepted)
+        uploadingList = filesAccepted
+
+        filesAccepted.map(async (file: File) => {
+            try {
+                let response = await uploadFile(file) as APIResponseUpload
+                uploadingList = uploadingList.filter((fileAccepted: File) => {
+                    return fileAccepted.name != response.data.filename;
+                })
+                setList(uploadingList)
+                props.onUpload()
+            }catch (error) {
+                props.onError(error.message)
+            }
         })
     }
 
-    const dropAccepted = (files: File[], event: DropEvent) => {
-        (files.map((file) => {
-            console.log("Uploading: " + file.name)
-            uploadFile(file)
+    const dropRejected = (filesRejected: FileRejection[], event: DropEvent) => {
+        (filesRejected.map((file: FileRejection) => {
+            props.onError("File type not allowed!")
         }))
     }
 
-    const dropRejected = (files: FileRejection[], event: DropEvent) => {
-        (files.map((file) => {
-            console.log("Rejected: " + JSON.stringify(file))
-        }))
-    }
-
-    const {acceptedFiles, getRootProps, getInputProps} = useDropzone({
+    const {getRootProps, getInputProps} = useDropzone({
         accept: allowedTypes,
         onDropRejected: dropRejected,
         onDropAccepted: dropAccepted,
     });
 
 
-    const files = acceptedFiles.map(file => (
-        <li key={file.name}>
-            {file.name} - {(file.size / 1024).toFixed(2)} KBs
-        </li>
-    ));
 
     return (
         <section className={`${styles.uploadContainer} container`}>
@@ -70,7 +83,15 @@ function FileUpload(props) {
             </div>
             <aside className={styles.alignCenter}>
                 {
-                    files.length > 0 ? (<><ul className={styles.marginZero}>{files}</ul></>) : (<></>)
+                    list.length > 0 ? (<><ul className={styles.marginZero}>
+                        {
+                            list.map((file: File) => (
+                                <li key={file.name}>
+                                    {file.name} - {(file.size / 1024).toFixed(2)} KBs
+                                </li>
+                            ))
+                        }
+                    </ul></>) : (<></>)
                 }
             </aside>
         </section>

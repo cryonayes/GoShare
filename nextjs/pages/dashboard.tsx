@@ -7,6 +7,7 @@ import File from "../components/File";
 import FileContainer from "../components/FileContainer";
 import FileUpload from "../components/FileUpload";
 import useSWR from "swr";
+import SweetAlert from "react-bootstrap-sweetalert";
 
 async function fetcher() : Promise<APIResponseFiles> {
 
@@ -20,8 +21,13 @@ async function fetcher() : Promise<APIResponseFiles> {
 
 function Dashboard(): JSX.Element {
 
+    const [isError, setIsError] = useState(null)
     const [userLoggedin, setUserLoggedin] = useState(false)
     let router = useRouter()
+
+    const showErrorMessage = (message) => {
+        setIsError(message)
+    }
 
     useEffect(()=> {
         checkAuth().then((auth) => {
@@ -52,11 +58,17 @@ function Dashboard(): JSX.Element {
                                         })
                                     }
                                 </FileContainer>
-                                <FileUpload onUpload={dataSWR.revalidate}/>
+                                <FileUpload onUpload={dataSWR.revalidate} onError={showErrorMessage} />
                             </div>
                         </div>
                     </div>
                 </div>
+                {
+                    isError && <SweetAlert onConfirm={()=>{setIsError(null)}} title={isError} danger
+                                           openAnim={{name: 'showSweetAlert', duration: 200}}
+                                           closeAnim={{name: 'hideSweetAlert', duration: 200}}
+                    />
+                }
             </>
         ) : (<></>)
     );

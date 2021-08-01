@@ -9,7 +9,9 @@ import (
 
 func main() {
 
-	app := fiber.New(fiber.Config{})
+	app := fiber.New(fiber.Config{
+		BodyLimit: 50 * 1024 * 1024, // 50MB limit for uploads
+	})
 
 	Setup(app)
 
