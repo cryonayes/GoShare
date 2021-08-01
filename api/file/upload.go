@@ -68,18 +68,12 @@ func EndpointUploadFile(ctx *fiber.Ctx) error {
 	return ctx.JSON(&api.Success{
 		Success: true,
 		Message: "File uploaded!",
-		Data: struct {
-			OrigFileName   string    `json:"orig_file_name"`
-			FileType       string    `json:"file_type"`
-			FileSize       int64     `json:"file_size"`
-			Owner          string    `json:"owner"`
-			CreationDate   time.Time `json:"creation_date"`
-		}{
-			uploadedFile.OrigFileName,
-			uploadedFile.FileType,
-			uploadedFile.FileSize,
-			uploadedFile.Owner,
-			uploadedFile.CreationDate,
+		Data: models.UserFileModel{
+			OrigFileName: uploadedFile.OrigFileName,
+			FileType:     uploadedFile.FileType,
+			FileSize:     uploadedFile.FileSize,
+			Owner:        uploadedFile.Owner,
+			CreationDate: uploadedFile.CreationDate,
 		},
 	})
 }

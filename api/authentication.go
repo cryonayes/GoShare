@@ -134,7 +134,7 @@ func Register(c *fiber.Ctx) error {
 	return c.JSON(Success{
 		true,
 		"User registered!",
-		"",
+		nil,
 	})
 }
 

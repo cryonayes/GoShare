@@ -1,9 +1,3 @@
-interface resp {
-    success: boolean,
-    message: string,
-    data:    any,
-}
-
 let checkAuth = async () => {
     const res = await fetch('http://localhost:3000/api/authcheck',
         {
@@ -13,7 +7,7 @@ let checkAuth = async () => {
             method: 'POST'
         }
     )
-    return await res.json().then((response : resp) => {
+    return await res.json().then((response : APIResponse) => {
         return !!response.success;
     })
 };

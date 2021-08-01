@@ -1,7 +1,7 @@
 import {DropEvent, FileRejection, useDropzone} from 'react-dropzone'
 import styles from "../styles/FileUpload.module.css"
 
-function FileUpload() {
+function FileUpload(props) {
 
     const allowedTypes = [
         "text/plain",
@@ -30,8 +30,9 @@ function FileUpload() {
         fetch(url, {
             method: "POST",
             body: formData,
-        }).then(r => {
-            console.log(r);
+        }).then(async r => {
+            let mData = await r.json() as APIResponseUpload
+            props.onUpload()
         })
     }
 

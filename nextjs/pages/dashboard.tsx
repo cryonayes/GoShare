@@ -8,7 +8,7 @@ import FileContainer from "../components/FileContainer";
 import FileUpload from "../components/FileUpload";
 import useSWR from "swr";
 
-async function fetcher() {
+async function fetcher() : Promise<APIResponseFiles> {
 
     const res = await fetch('http://localhost:3000/api/files', {
             credentials: "include",
@@ -33,25 +33,26 @@ function Dashboard(): JSX.Element {
         })
     }, [])
 
-    const { data } = useSWR('/api/files', fetcher)
+    const dataSWR = useSWR<APIResponseFiles>('/api/files', fetcher)
+    let userData = dataSWR.data
 
     return (
-        (userLoggedin && data) ? (
+        (userLoggedin && userData) ? (
             <>
                 <Header title={"Dashboard"}/>
                 <div className={"wrapper"} style={{height: "100%"}}>
                     <div className={"content-wrapper"}>
                         <div className={"content"}>
-                            <Navbar name={data.data.name} lastname={data.data.lastname}/>
+                            <Navbar name={userData.data.name} lastname={userData.data.lastname}/>
                             <div className={"container-fluid"}>
                                 <FileContainer>
                                     {
-                                        (data.data.files).map((file, idx) => {
+                                        (userData.data.files).map((file, idx) => {
                                             return (<File filename={file.filename} dropdownID={idx}/>)
                                         })
                                     }
                                 </FileContainer>
-                                <FileUpload/>
+                                <FileUpload onUpload={dataSWR.revalidate}/>
                             </div>
                         </div>
                     </div>

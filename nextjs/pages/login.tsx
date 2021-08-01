@@ -41,7 +41,7 @@ function Register(): JSX.Element {
                 method: 'POST'
             }
         )
-        const result = await res.json()
+        const result = await res.json() as APIResponse
 
         if (result.success) {
             showSuccessAlert()
