@@ -10,6 +10,10 @@ function Navbar(props) : JSX.Element {
         "text-decoration": "none"
     }
 
+    const handleKeyPress = (event) => {
+        props.onSearch(event)
+    }
+
     const onLogout = async () => {
         await fetch('http://localhost:3000/api/logout',
             {
@@ -27,7 +31,7 @@ function Navbar(props) : JSX.Element {
             <div className="container-fluid">
                 <form className="form-inline d-sm-inline-block mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
                     <div className="input-group"><input className="bg-light form-control border-0 small" type="text"
-                                                        placeholder="Search for ..."/>
+                                                        placeholder="Search for ..." onChange={handleKeyPress}/>
                         <div className="input-group-append">
                             <button className="btn btn-primary py-0" type="button"><i className="fas fa-search"/>
                             </button>

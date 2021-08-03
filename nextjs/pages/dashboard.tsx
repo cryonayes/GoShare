@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useRouter} from 'next/router'
 import checkAuth from "../utils/authCheck";
 import Navbar from "../components/Navbar";
@@ -21,8 +21,9 @@ async function fetcher() : Promise<APIResponseFiles> {
 
 function Dashboard(): JSX.Element {
 
-    const [isError, setIsError] = useState(null)
-    const [userLoggedin, setUserLoggedin] = useState(false)
+    const [isError, setIsError] = useState<string>(null)
+    const [userLoggedin, setUserLoggedin] = useState<boolean>(false)
+    const [filtered, setFiltered] = useState<UserFileModel[]>([])
     let router = useRouter()
 
     const showErrorMessage = (message) => {
@@ -42,6 +43,26 @@ function Dashboard(): JSX.Element {
     const dataSWR = useSWR<APIResponseFiles>('/api/files', fetcher)
     let userData = dataSWR.data
 
+    const filterFiles = (navbarKeyEvent: React.KeyboardEvent<HTMLInputElement>) => {
+        let searchKeyword = navbarKeyEvent.currentTarget.value
+        let newFiles = userData.data.files.filter((file: UserFileModel) => {
+            return file.filename.includes(searchKeyword);
+        })
+        setFiltered(newFiles)
+    }
+
+    const getFilteredFiles = (): JSX.Element[] => {
+        return filtered.map((file: UserFileModel, index: number) => {
+            return (<File filename={file.filename} dropdownID={index}/>)
+        })
+    }
+
+    const getUserFiles = (): JSX.Element[] => {
+        return userData.data.files.map((file: UserFileModel, index: number) => {
+            return(<File filename={file.filename} dropdownID={index}/>)
+        })
+    }
+
     return (
         (userLoggedin && userData) ? (
             <>
@@ -49,13 +70,11 @@ function Dashboard(): JSX.Element {
                 <div className={"wrapper"} style={{height: "100%"}}>
                     <div className={"content-wrapper"}>
                         <div className={"content"}>
-                            <Navbar name={userData.data.name} lastname={userData.data.lastname}/>
+                            <Navbar name={userData.data.name} lastname={userData.data.lastname} onSearch={filterFiles}/>
                             <div className={"container-fluid"}>
                                 <FileContainer>
                                     {
-                                        (userData.data.files).map((file, idx) => {
-                                            return (<File filename={file.filename} dropdownID={idx}/>)
-                                        })
+                                        filtered.length > 0 ? (getFilteredFiles()) : (getUserFiles())
                                     }
                                 </FileContainer>
                                 <FileUpload onUpload={dataSWR.revalidate} onError={showErrorMessage} />
