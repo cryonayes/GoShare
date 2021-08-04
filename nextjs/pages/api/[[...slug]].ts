@@ -41,6 +41,7 @@ function handleAPIs(req : NextApiRequest, res : NextApiResponse) {
     if (apiUrl === undefined) {
         res.json({success: false, message: "Invalid endpoint", data: null})
         res.end()
+        return
     }
 
     fetchDefault(apiUrl, JSON.stringify(req.body), req.headers, "POST").then(async r => {

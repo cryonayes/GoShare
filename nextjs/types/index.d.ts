@@ -4,6 +4,7 @@ interface UserFileModel {
     filename: string,
     file_type: string,
     file_size: number,
+    access_code: string,
     owner: string,
     creation_date: string
 }

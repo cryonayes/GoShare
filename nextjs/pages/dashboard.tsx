@@ -59,7 +59,7 @@ function Dashboard(): JSX.Element {
 
     const getUserFiles = (): JSX.Element[] => {
         return userData.data.files.map((file: UserFileModel, index: number) => {
-            return(<File filename={file.filename} dropdownID={index}/>)
+            return(<File filename={file.filename} downloadLink={file.access_code} dropdownID={index}/>)
         })
     }
 
