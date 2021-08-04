@@ -53,5 +53,5 @@ func DownloadFile(ctx *fiber.Ctx) error {
 		})
 	}
 
-	return ctx.SendFile("./uploads/"+fileModel.HashedFileName)
+	return ctx.SendFile("./uploads/" + fileModel.HashedFileName)
 }
