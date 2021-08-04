@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"github.com/cryonayes/GoShare/api"
 	"github.com/cryonayes/GoShare/database"
-	models "github.com/cryonayes/GoShare/models"
+	appmodels "github.com/cryonayes/GoShare/models"
 	"github.com/cryonayes/GoShare/utils"
 	"github.com/gofiber/fiber/v2"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -16,9 +17,12 @@ const (
 )
 
 func EndpointUploadFile(ctx *fiber.Ctx) error {
-	// TODO(Convert to api failure)
-	if connected := database.CheckConnection(); !connected {
-		return ctx.JSON(utils.NewJSONError(utils.DatabaseConnErr))
+	if dbconn := database.CheckConnection(); !dbconn {
+		return ctx.JSON(api.Failure{
+			Success: false,
+			Message: utils.DatabaseConnErr,
+			Data:    nil,
+		})
 	}
 
 	authenticated, userEmail := api.CheckAuthentication(ctx)
@@ -26,7 +30,7 @@ func EndpointUploadFile(ctx *fiber.Ctx) error {
 		return ctx.JSON(api.Failure{Success: false, Message: utils.Unauthenticated, Data: nil})
 	}
 
-	file, err := ctx.FormFile("testFile")
+	file, err := ctx.FormFile("fileupload")
 	if err != nil {
 		return ctx.JSON(api.Failure{Success: false, Message: utils.UploadError, Data: nil})
 	}
@@ -38,11 +42,12 @@ func EndpointUploadFile(ctx *fiber.Ctx) error {
 
 	uploadedTime := time.Now()
 	hashedFileName := utils.GetMD5String(file.Filename + uploadedTime.String())
-	// hashedUserMail := utils.GetMD5String(userEmail)
+	accessCode := utils.GetMD5String(hashedFileName) + utils.GetMD5String(strconv.FormatInt(file.Size*uploadedTime.Unix(), 10))
 
-	uploadedFile := models.FileModel{
+	uploadedFile := appmodels.FileModel{
 		OrigFileName:   file.Filename,
 		HashedFileName: hashedFileName + "." + fType,
+		AccessCode:     accessCode,
 		FileType:       fType,
 		FileSize:       file.Size,
 		Owner:          userEmail,
@@ -67,7 +72,7 @@ func EndpointUploadFile(ctx *fiber.Ctx) error {
 	return ctx.JSON(&api.Success{
 		Success: true,
 		Message: "File uploaded!",
-		Data: models.UserFileModel{
+		Data: appmodels.UserFileModel{
 			OrigFileName: uploadedFile.OrigFileName,
 			FileType:     uploadedFile.FileType,
 			FileSize:     uploadedFile.FileSize,

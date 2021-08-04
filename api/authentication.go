@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/cryonayes/GoShare/database"
-	models "github.com/cryonayes/GoShare/models"
+	appmodels "github.com/cryonayes/GoShare/models"
 	"github.com/cryonayes/GoShare/utils"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
@@ -22,7 +22,7 @@ func Login(c *fiber.Ctx) error {
 	if connected := database.CheckConnection(); !connected {
 		return c.JSON(Failure{Success: false, Message: utils.DatabaseConnErr, Data: nil})
 	}
-	var data models.User
+	var data appmodels.User
 
 	if err := c.BodyParser(&data); err != nil {
 		return c.JSON(Failure{Success: false, Message: utils.RequestError, Data: nil})
@@ -58,7 +58,7 @@ func Login(c *fiber.Ctx) error {
 	cookie := fiber.Cookie{
 		Name:     "token",
 		Value:    token,
-		Expires:  time.Now().Add(time.Hour * 24),
+		Expires:  time.Now().Add(time.Hour * 8),
 		HTTPOnly: true,
 	}
 	c.Cookie(&cookie)
@@ -66,43 +66,47 @@ func Login(c *fiber.Ctx) error {
 	return c.JSON(Success{
 		Success: true,
 		Message: "Login Success",
-		Data:    nil, // Token artık cookie ve X-TOKEN header'ında
+		Data:    nil,
 	})
 }
 
-func Register(c *fiber.Ctx) error {
-	if connected := database.CheckConnection(); !connected {
-		return utils.NewError(utils.DatabaseConnErr)
+func Register(ctx *fiber.Ctx) error {
+	if dbconn := database.CheckConnection(); !dbconn {
+		return ctx.JSON(Failure{
+			Success: false,
+			Message: utils.DatabaseConnErr,
+			Data:    nil,
+		})
 	}
-	var userRegister models.UserRegister
 
-	if err := c.BodyParser(&userRegister); err != nil {
-		return c.JSON(Failure{Success: false, Message: utils.RegisterFailed, Data: nil})
+	var userRegister appmodels.UserRegister
+	if err := ctx.BodyParser(&userRegister); err != nil {
+		return ctx.JSON(Failure{Success: false, Message: utils.RegisterFailed, Data: nil})
 	}
 
 	if userRegister.Email == "" {
-		return c.JSON(Failure{
+		return ctx.JSON(Failure{
 			Success: false,
 			Message: utils.InvalidEmail,
 			Data:    nil,
 		})
 	}
 	if userRegister.Password == "" {
-		return c.JSON(Failure{
+		return ctx.JSON(Failure{
 			Success: false,
 			Message: utils.InvalidPassword,
 			Data:    nil,
 		})
 	}
 	if userRegister.Name == "" {
-		return c.JSON(Failure{
+		return ctx.JSON(Failure{
 			Success: false,
 			Message: utils.InvalidName,
 			Data:    nil,
 		})
 	}
 	if userRegister.LastName == "" {
-		return c.JSON(Failure{
+		return ctx.JSON(Failure{
 			Success: false,
 			Message: utils.InvalidLastname,
 			Data:    nil,
@@ -111,27 +115,27 @@ func Register(c *fiber.Ctx) error {
 
 	password, _ := bcrypt.GenerateFromPassword([]byte(userRegister.Password), 14)
 
-	user := models.User{}
+	user := appmodels.User{}
 	database.DBConn.Where("email = ?", userRegister.Email).First(&user)
 
-	if user != (models.User{}) {
-		return c.JSON(Failure{Success: false, Message: utils.UserAlreadyExists, Data: nil})
+	if user != (appmodels.User{}) {
+		return ctx.JSON(Failure{Success: false, Message: utils.UserAlreadyExists, Data: nil})
 	}
 
-	user = models.User{
+	user = appmodels.User{
 		Email:    userRegister.Email,
 		Password: string(password),
-		Name: userRegister.Name,
+		Name:     userRegister.Name,
 		LastName: userRegister.LastName,
 	}
 
 	dbResponse := database.DBConn.Create(&user)
 
 	if mErr := dbResponse.Error; mErr != nil {
-		return c.JSON(Failure{Success: false, Message: utils.RegisterFailed, Data: nil})
+		return ctx.JSON(Failure{Success: false, Message: utils.RegisterFailed, Data: nil})
 	}
 
-	return c.JSON(Success{
+	return ctx.JSON(Success{
 		true,
 		"User registered!",
 		nil,
@@ -150,29 +154,17 @@ func CheckAuthentication(ctx *fiber.Ctx) (bool, string) {
 		return false, ""
 	}
 
-	/*
-		JWTtoken := struct {
-		Token string `json:"token"`
-		}{}
-
-		err := ctx.BodyParser(&JWTtoken)
-		if err != nil || JWTtoken.Token == ""{
-			return false, ""
-		}
-	*/
-
 	claims := &Claims{}
 	jwtToken, err := jwt.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
 		return SecretKey, nil
 	})
 
-	/*
-		jwtToken, err := jwt.ParseWithClaims(JWTtoken.Token, claims, func(t *jwt.Token) (interface{}, error) {
-			return SecretKey, nil
-		})
-	*/
 	if err != nil || !jwtToken.Valid {
 		ctx.ClearCookie("token")
+		return false, ""
+	}
+
+	if claims.ExpiresAt <= time.Now().Unix() {
 		return false, ""
 	}
 
@@ -185,13 +177,13 @@ func AuthCheckForFrontend(ctx *fiber.Ctx) error {
 	if auth || mail != "" {
 		return ctx.JSON(Success{
 			Success: true,
-			Message: "Authenticated!",
+			Message: utils.Authenticated,
 			Data:    nil,
 		})
-	}else {
+	} else {
 		return ctx.JSON(Failure{
 			Success: false,
-			Message: "Unauthenticated!",
+			Message: utils.Unauthenticated,
 			Data:    nil,
 		})
 	}

@@ -29,7 +29,7 @@ function FileUpload(props) {
         let url = "http://localhost:3000/api/upload";
 
         let formData = new FormData();
-        formData.set("testFile", file)
+        formData.set("fileupload", file)
 
         let mData = await fetch(url, {method: "POST", body: formData})
         let jsonData = await mData.json() as APIResponse

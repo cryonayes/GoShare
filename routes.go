@@ -10,9 +10,9 @@ import (
 func Setup(app *fiber.App) {
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "https://localhost:3000, http://localhost:3000, http://localhost:8080, https://localhost:8080",
+		AllowOrigins:     "https://localhost:3000, http://localhost:3000, http://localhost:8080, https://localhost:8080",
 		AllowCredentials: true,
-		AllowHeaders: "Origin, Content-Type, Content-Length, Accept, Cookie, X-TOKEN",
+		AllowHeaders:     "Origin, Content-Type, Content-Length, Accept, Cookie, X-TOKEN",
 	}))
 
 	app.Post("/api/login", authApi.Login)
@@ -21,4 +21,5 @@ func Setup(app *fiber.App) {
 
 	app.Post("/api/upload", fileApi.EndpointUploadFile)
 	app.Post("/api/files", fileApi.GetUploadedFiles)
+	app.Get("/api/download/:accesscode", fileApi.DownloadFile)
 }
