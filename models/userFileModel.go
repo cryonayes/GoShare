@@ -9,5 +9,5 @@ type UserFileModel struct {
 	AccessCode   string    `json:"access_code"`
 	Owner        string    `json:"owner"`
 	CreationDate time.Time `json:"creation_date"`
-	Shared bool `json:"shared"`
+	Shared       bool      `json:"shared"`
 }

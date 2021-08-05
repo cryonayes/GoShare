@@ -22,5 +22,7 @@ func Setup(app *fiber.App) {
 	app.Post("/api/upload", fileApi.EndpointUploadFile)
 	app.Post("/api/files", fileApi.GetUploadedFiles)
 	app.Post("/api/share", fileApi.ShareFile)
+	app.Post("/api/delete", fileApi.DeleteFile)
+	app.Post("/api/unshare", fileApi.UnshareFile)
 	app.Get("/api/download/:accesscode/:accesstoken?", fileApi.DownloadFile)
 }

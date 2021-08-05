@@ -6,11 +6,10 @@ import (
 	appmodels "github.com/cryonayes/GoShare/models"
 	"github.com/cryonayes/GoShare/utils"
 	"github.com/gofiber/fiber/v2"
-	"strconv"
-	"time"
+	"os"
 )
 
-func ShareFile(ctx *fiber.Ctx) error {
+func DeleteFile(ctx *fiber.Ctx) error {
 	if dbconn := database.CheckConnection(); !dbconn {
 		return ctx.JSON(api.Failure{
 			Success: false,
@@ -28,7 +27,7 @@ func ShareFile(ctx *fiber.Ctx) error {
 		})
 	}
 
-	var fileData = appmodels.FileShareDatas{}
+	var fileData = appmodels.FileAccessCode{}
 	err := ctx.BodyParser(&fileData)
 	if err != nil {
 		return ctx.JSON(api.Failure{
@@ -38,18 +37,8 @@ func ShareFile(ctx *fiber.Ctx) error {
 		})
 	}
 
-	shareTime := fileData.ShareTime
-	if shareTime == "" {
-		return ctx.JSON(api.Failure{
-			Success: false,
-			Message: utils.InvalidTimeValue,
-			Data:    nil,
-		})
-	}
-
 	var userFile appmodels.FileModel
-	database.DBConn.Table("file_models").Where("access_code = ?", fileData.AccessCode).Find(&userFile)
-
+	database.DBConn.Table("file_models").Where("access_code = ?", fileData.AccessCode).First(&userFile)
 	if userFile.Owner != email {
 		return ctx.JSON(api.Failure{
 			Success: false,
@@ -58,33 +47,27 @@ func ShareFile(ctx *fiber.Ctx) error {
 		})
 	}
 
-	shareTimeInt, err := strconv.ParseInt(shareTime, 10, 64)
+	err = os.Remove("./uploads/" + userFile.HashedFileName)
 	if err != nil {
 		return ctx.JSON(api.Failure{
 			Success: false,
-			Message: utils.InvalidTimeValue,
+			Message: utils.ErrorWhileDeleting,
 			Data:    nil,
 		})
 	}
 
-	convertedTime := time.Unix(shareTimeInt, 0)
-	if convertedTime.Unix() <= time.Now().Unix() {
+	dbExec := database.DBConn.Table("file_models").Where("access_code = ?", fileData.AccessCode).Delete(userFile)
+	if dbExec.Error != nil {
 		return ctx.JSON(api.Failure{
 			Success: false,
-			Message: utils.InvalidTimeValue,
+			Message: utils.ErrorWhileDeleting,
 			Data:    nil,
 		})
 	}
-
-	userFile.Shared = true
-	userFile.ShareTime = convertedTime
-	userFile.AccessToken = utils.GetMD5String(userFile.ShareTime.String() + userFile.AccessCode)
-
-	database.DBConn.Table("file_models").Where("access_code = ?", fileData.AccessCode).Updates(&userFile)
 
 	return ctx.JSON(api.Success{
 		Success: true,
-		Message: utils.FileShared,
-		Data:    appmodels.FileAccessLink{AccessLink: userFile.AccessCode + "/" + userFile.AccessToken},
+		Message: utils.FileDeleted,
+		Data:    nil,
 	})
 }
