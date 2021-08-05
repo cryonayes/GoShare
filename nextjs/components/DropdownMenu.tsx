@@ -14,16 +14,24 @@ function DropdownMenu(props): JSX.Element {
         )
     })
 
+    const clickedShare = () => {
+        props.onShare(props.fileAccessCode)
+    }
+    const clickedUnshare = () => {
+        props.onUnshare(props.fileAccessCode)
+    }
+
+
     return(
         <Dropdown>
             <Dropdown.Toggle as={CustomDropdown} id={"dropdown"}/>
             <Dropdown.Menu>
-                <Dropdown.Item href={"http://localhost:3000/api/download/" + props.downloadLink} download>
+                <Dropdown.Item href={"http://localhost:3000/api/download/" + props.fileAccessCode} download>
                     <i className="fas fa-save pr-2"/>Download
                 </Dropdown.Item>
 
-                <Dropdown.Item>
-                    <i className="fas fa-share pr-2"/>Share
+                <Dropdown.Item onClick={props.shared ? (clickedUnshare) : (clickedShare) } className={props.shared ? ("bg-warning text-white") : ""}>
+                    {props.shared ? (<><i className="fas fa-reply pr-2"/>Unshare</>) : (<><i className="fas fa-share pr-2"/>Share</>)}
                 </Dropdown.Item>
 
                 <Dropdown.Item href={"#"} className={"bg-danger text-white"}>

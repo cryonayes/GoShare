@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {ChangeEvent, useEffect, useRef, useState} from "react";
 import {useRouter} from 'next/router'
 import checkAuth from "../utils/authCheck";
 import Navbar from "../components/Navbar";
@@ -24,6 +24,9 @@ function Dashboard(): JSX.Element {
     const [isError, setIsError] = useState<string>(null)
     const [userLoggedin, setUserLoggedin] = useState<boolean>(false)
     const [filtered, setFiltered] = useState<UserFileModel[]>([])
+    const [shareLink, setShareLink] = useState<string>("")
+    const [timeInput, setTimeInput] = useState<number>(24)
+    const [showShareLink, setShowShareLink] = useState<string>("")
     let router = useRouter()
 
     const showErrorMessage = (message) => {
@@ -53,15 +56,48 @@ function Dashboard(): JSX.Element {
 
     const getFilteredFiles = (): JSX.Element[] => {
         return filtered.map((file: UserFileModel, index: number) => {
-            return (<File filename={file.filename} />)
+            return(<File onShareFile={onShareFile} onUnshareFile={onUnshareFile} filename={file.filename} fileAccessCode={file.access_code} shared={file.shared} />)
         })
     }
 
     const getUserFiles = (): JSX.Element[] => {
         return userData.data.files.map((file: UserFileModel, index: number) => {
-            return(<File filename={file.filename} downloadLink={file.access_code} />)
+            return(<File onShareFile={onShareFile} onUnshareFile={onUnshareFile} filename={file.filename} fileAccessCode={file.access_code} shared={file.shared} />)
         })
     }
+
+    const onShareFile = (accessCode) => {
+        setShareLink(accessCode)
+    }
+
+    const onClickShare = async (accessCode) => {
+        let dateTime = new Date();
+        dateTime.setHours(dateTime.getHours() + timeInput);
+        let timeStamp = (dateTime.getTime() / 1000).toFixed(0)
+
+        const res = await fetch('http://localhost:3000/api/share',
+            {
+                body: JSON.stringify(
+                    {
+                        accesscode: accessCode,
+                        sharetime: timeStamp.toString()
+                    }),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST'
+            }
+        )
+        const result = await res.json() as APIResponseShare
+
+        if (result.success) {
+            setShowShareLink(result.data.accesslink)
+        }else {
+            setIsError(result.message)
+        }
+    }
+
+    const onUnshareFile = () => {}
 
     return (
         (userLoggedin && userData) ? (
@@ -82,12 +118,20 @@ function Dashboard(): JSX.Element {
                         </div>
                     </div>
                 </div>
-                {
-                    isError && <SweetAlert onConfirm={()=>{setIsError(null)}} title={isError} danger
+
+                <SweetAlert onConfirm={()=>{setIsError(null)}} title={isError} danger show={isError!==null}
                                            openAnim={{name: 'showSweetAlert', duration: 200}}
                                            closeAnim={{name: 'hideSweetAlert', duration: 200}}
-                    />
-                }
+                />
+                <SweetAlert onConfirm={()=>{onClickShare(shareLink); setShareLink("");}} title={"Set time limit"} show={shareLink !== ""}>
+                    <input type="text" className="border rounded-pill border-primary shadow-sm" inputMode="numeric" placeholder="Hours"
+                           style={{padding: "5px 20px", width: "100px",textAlign: "center", outlineStyle: "none"}}
+                           onChange={(event: ChangeEvent<HTMLInputElement>)=>{setTimeInput(parseInt(event.target.value))}}/>
+                </SweetAlert>
+
+                <SweetAlert onConfirm={()=>{setShowShareLink("");}} title={"Copy Link"} show={showShareLink !== ""}>
+                    <a href={document.location.origin+"/api/download/"+showShareLink}>{document.location.origin+"/api/download/"+showShareLink}</a>
+                </SweetAlert>
             </>
         ) : (<></>)
     );

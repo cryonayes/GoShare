@@ -3,7 +3,8 @@ import {NextApiRequest, NextApiResponse} from "next";
 const apiURLs = {
     "/api/files" : "http://localhost:21942/api/files",
     "/api/authcheck" : "http://localhost:21942/api/authcheck",
-    "/api/register" : "http://localhost:21942/api/register"
+    "/api/register" : "http://localhost:21942/api/register", // OK
+    "/api/share" : "http://localhost:21942/api/share"
 }
 
 async function fetchDefault(url : string, body : string, headers, method : "GET" | "POST") {

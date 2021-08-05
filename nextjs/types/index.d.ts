@@ -6,7 +6,8 @@ interface UserFileModel {
     file_size: number,
     access_code: string,
     owner: string,
-    creation_date: string
+    creation_date: string,
+    shared: boolean
 }
 
 interface APIUserData {
@@ -19,6 +20,14 @@ interface APIResponseFiles {
     success: bool,
     message: string,
     data: APIUserData
+}
+
+interface APIResponseShare {
+    success: bool,
+    message: string,
+    data: {
+        accesslink: string
+    }
 }
 
 interface APIResponseUpload {

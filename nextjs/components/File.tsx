@@ -14,7 +14,8 @@ function File(props) : JSX.Element {
                                 <div className="text-dark font-weight-bold h5 mb-0"><span>{props.filename}</span></div>
                             </div>
                             <div className="col-auto">
-                                <DropdownMenu downloadLink={props.downloadLink}/>
+                                <DropdownMenu onShare={props.onShareFile} onUnshare={props.onUnshareFile}
+                                              fileAccessCode={props.fileAccessCode} shared={props.shared} />
                             </div>
                         </div>
                     </div>

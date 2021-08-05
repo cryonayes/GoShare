@@ -28,8 +28,14 @@ func ShareFile(ctx *fiber.Ctx) error {
 		})
 	}
 
-	fileAccessCode := ctx.Params("accesscode", "")
-	if fileAccessCode == "" {
+	type fileShareDatas struct {
+		AccessCode string `json:"accesscode"`
+		ShareTime string `json:"sharetime"`
+	}
+
+	var fileData = fileShareDatas{}
+	err := ctx.BodyParser(&fileData)
+	if err != nil{
 		return ctx.JSON(api.Failure{
 			Success: false,
 			Message: utils.InvalidFileCode,
@@ -37,7 +43,7 @@ func ShareFile(ctx *fiber.Ctx) error {
 		})
 	}
 
-	shareTime := ctx.Params("sharetime", "")
+	shareTime := fileData.ShareTime
 	if shareTime == "" {
 		return ctx.JSON(api.Failure{
 			Success: false,
@@ -47,7 +53,7 @@ func ShareFile(ctx *fiber.Ctx) error {
 	}
 
 	var userFile appmodels.FileModel
-	database.DBConn.Table("file_models").Where("access_code = ?", fileAccessCode).Find(&userFile)
+	database.DBConn.Table("file_models").Where("access_code = ?", fileData.AccessCode).Find(&userFile)
 
 	if userFile.Owner != email {
 		return ctx.JSON(api.Failure{
@@ -75,18 +81,19 @@ func ShareFile(ctx *fiber.Ctx) error {
 		})
 	}
 
+	userFile.Shared = true
 	userFile.ShareTime = convertedTime
 	userFile.AccessToken = utils.GetMD5String(userFile.ShareTime.String() + userFile.AccessCode)
 
-	database.DBConn.Table("file_models").Where("access_code = ?", fileAccessCode).Updates(&userFile)
+	database.DBConn.Table("file_models").Where("access_code = ?", fileData.AccessCode).Updates(&userFile)
 
 	return ctx.JSON(api.Success{
 		Success: true,
 		Message: utils.FileShared,
 		Data: struct {
-			Accesstoken string `json:"accesstoken"`
+			AccessLink string `json:"accesslink"`
 		}{
-			userFile.AccessToken,
+			userFile.AccessCode + "/" +userFile.AccessToken,
 		},
 	})
 }
