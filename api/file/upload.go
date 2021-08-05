@@ -48,6 +48,7 @@ func EndpointUploadFile(ctx *fiber.Ctx) error {
 		OrigFileName:   file.Filename,
 		HashedFileName: hashedFileName + "." + fType,
 		AccessCode:     accessCode,
+		ShareTime:      time.Now(),
 		FileType:       fType,
 		FileSize:       file.Size,
 		Owner:          userEmail,

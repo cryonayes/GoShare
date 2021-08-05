@@ -6,6 +6,7 @@ import (
 	appmodels "github.com/cryonayes/GoShare/models"
 	"github.com/cryonayes/GoShare/utils"
 	"github.com/gofiber/fiber/v2"
+	"time"
 )
 
 func DownloadFile(ctx *fiber.Ctx) error {
@@ -15,6 +16,31 @@ func DownloadFile(ctx *fiber.Ctx) error {
 			Message: utils.DatabaseConnErr,
 			Data:    nil,
 		})
+	}
+
+	fileAccessToken := ctx.Params("accesstoken", "")
+	if fileAccessToken != "" {
+		var userFile = appmodels.FileModel{}
+		database.DBConn.Table("file_models").Where("access_token = ?", fileAccessToken).First(&userFile)
+
+		if userFile.Shared && userFile.ShareTime.Unix() <= time.Now().Unix() {
+
+			database.DBConn.Model(userFile).Where("access_token = ?", fileAccessToken).Updates(map[string]interface{}{
+				"shared":       false,
+				"share_time":   time.Now(),
+				"access_token": "",
+			})
+
+			return ctx.JSON(api.Failure{
+				Success: false,
+				Message: utils.FileShareExpired,
+				Data:    nil,
+			})
+		}
+
+		if userFile.Shared && userFile.ShareTime.Unix() > time.Now().Unix() {
+			return ctx.SendFile("./uploads/"+userFile.HashedFileName, true)
+		}
 	}
 
 	loggedIn, email := api.CheckAuthentication(ctx)
@@ -53,5 +79,5 @@ func DownloadFile(ctx *fiber.Ctx) error {
 		})
 	}
 
-	return ctx.SendFile("./uploads/" + fileModel.HashedFileName, true)
+	return ctx.SendFile("./uploads/"+fileModel.HashedFileName, true)
 }
