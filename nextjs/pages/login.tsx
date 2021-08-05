@@ -28,19 +28,17 @@ function Register(): JSX.Element {
     const loginUser = async event => {
         event.preventDefault()
 
-        const res = await fetch('http://localhost:3000/api/login',
-            {
-                body: JSON.stringify(
-                    {
-                        email: event.target.email.value,
-                        password: event.target.password.value,
-                    }),
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                method: 'POST'
-            }
-        )
+        const res = await fetch('http://localhost:3000/api/login', {
+            body: JSON.stringify({
+                email: event.target.email.value,
+                password: event.target.password.value,
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: 'POST'
+        })
+
         const result = await res.json() as APIResponse
 
         if (result.success) {
@@ -81,7 +79,8 @@ function Register(): JSX.Element {
                                                     <div className="form-group"><input
                                                         className="form-control form-control-user" type="email"
                                                         id="exampleInputEmail" aria-describedby="emailHelp"
-                                                        placeholder="Enter Email Address..." name="email"/></div>
+                                                        placeholder="Enter Email Address..." name="email"/>
+                                                    </div>
                                                     <div className="form-group"><input
                                                         className="form-control form-control-user" type="password"
                                                         id="exampleInputPassword" placeholder="Password"
@@ -93,20 +92,19 @@ function Register(): JSX.Element {
                                                                 className="form-check-input custom-control-input"
                                                                 type="checkbox" id="formCheck-1"/><label
                                                                 className="form-check-label custom-control-label"
-                                                                htmlFor="formCheck-1">Remember Me</label></div>
+                                                                htmlFor="formCheck-1">Remember Me</label>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <button className="btn btn-primary btn-block text-white btn-user"
-                                                            type="submit">Login
-                                                    </button>
+                                                    <button className="btn btn-primary btn-block text-white btn-user" type="submit">Login</button>
                                                     <br/>
                                                 </form>
                                                 <hr/>
-                                                <div className="text-center"><a className="small"
-                                                                                href="/forgot-password">Forgot
-                                                    Password?</a></div>
-                                                <div className="text-center"><a className="small" href="/register">Create
-                                                    an Account!</a></div>
+                                                <div className="text-center">
+                                                    <a className="small" href="/forgot-password">Forgot Password?</a></div>
+                                                <div className="text-center">
+                                                    <a className="small" href="/register">Create an Account!</a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

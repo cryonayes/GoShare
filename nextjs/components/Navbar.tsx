@@ -7,6 +7,8 @@ function Navbar(props) : JSX.Element {
     const itemStyle = {
         display: "inline",
         padding: "0 .75rem",
+        "text-align": "center",
+        "line-height": "1",
         "text-decoration": "none"
     }
 
@@ -15,14 +17,13 @@ function Navbar(props) : JSX.Element {
     }
 
     const onLogout = async () => {
-        await fetch('http://localhost:3000/api/logout',
-            {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                method: 'POST'
-            }
-        )
+        await fetch('http://localhost:3000/api/logout', {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: 'POST'
+        })
+
         await mRouter.push("/login")
     }
 
@@ -39,7 +40,7 @@ function Navbar(props) : JSX.Element {
                     </div>
                 </form>
                 <ul className="navbar-nav flex-nowrap ml-auto">
-                    <li className="nav-item no-arrow mx-1">
+                    <li className="nav-item no-arrow mx-1 d-flex" style={{alignItems: "center", justifyContent:"center"}}>
                         <a style={itemStyle} href="#">{props.name} {props.lastname}</a>
                         <a style={itemStyle} href="#" onClick={onLogout}>Logout</a>
                     </li>

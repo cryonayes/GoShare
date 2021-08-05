@@ -8,7 +8,6 @@ function Index(): JSX.Element {
 
   useEffect(()=> {
     checkAuth().then((auth) => {
-      console.log(auth);
       if (auth) {
         router.push("/dashboard")
       }else{

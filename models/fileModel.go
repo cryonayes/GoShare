@@ -15,3 +15,12 @@ type FileModel struct {
 	IsEncrypted    bool      `json:"is_encrypted"`
 	CreationDate   time.Time `json:"creation_date"`
 }
+
+type FileShareDatas struct {
+	AccessCode string `json:"accesscode"`
+	ShareTime string `json:"sharetime"`
+}
+
+type FileAccessLink struct {
+	AccessLink string `json:"accesslink"`
+}

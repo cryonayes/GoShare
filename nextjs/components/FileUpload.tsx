@@ -79,7 +79,7 @@ function FileUpload(props) {
         <section className={`${styles.uploadContainer} container`}>
             <div {...getRootProps({className: `dropzone ${styles.alignCenter}`})}>
                 <input {...getInputProps()} />
-                <p className={styles.marginZero}>Drag & drop files here, or click to select files</p>
+                <p className={`${styles.marginZero} text-center`}>Drag & drop files here, or click to select files</p>
             </div>
             <aside className={styles.alignCenter}>
                 {

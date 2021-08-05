@@ -28,12 +28,7 @@ func ShareFile(ctx *fiber.Ctx) error {
 		})
 	}
 
-	type fileShareDatas struct {
-		AccessCode string `json:"accesscode"`
-		ShareTime string `json:"sharetime"`
-	}
-
-	var fileData = fileShareDatas{}
+	var fileData = appmodels.FileShareDatas{}
 	err := ctx.BodyParser(&fileData)
 	if err != nil{
 		return ctx.JSON(api.Failure{
@@ -73,7 +68,7 @@ func ShareFile(ctx *fiber.Ctx) error {
 	}
 
 	convertedTime := time.Unix(shareTimeInt, 0)
-	if convertedTime.Unix() < time.Now().Unix() {
+	if convertedTime.Unix() <= time.Now().Unix() {
 		return ctx.JSON(api.Failure{
 			Success: false,
 			Message: utils.InvalidTimeValue,
@@ -90,10 +85,6 @@ func ShareFile(ctx *fiber.Ctx) error {
 	return ctx.JSON(api.Success{
 		Success: true,
 		Message: utils.FileShared,
-		Data: struct {
-			AccessLink string `json:"accesslink"`
-		}{
-			userFile.AccessCode + "/" +userFile.AccessToken,
-		},
+		Data: appmodels.FileAccessLink{AccessLink: userFile.AccessCode + "/" +userFile.AccessToken},
 	})
 }

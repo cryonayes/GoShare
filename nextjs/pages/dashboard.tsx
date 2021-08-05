@@ -9,15 +9,6 @@ import FileUpload from "../components/FileUpload";
 import useSWR from "swr";
 import SweetAlert from "react-bootstrap-sweetalert";
 
-async function fetcher() : Promise<APIResponseFiles> {
-
-    const res = await fetch('http://localhost:3000/api/files', {
-            credentials: "include",
-            method: 'POST'
-        }
-    )
-    return await res.json()
-}
 
 function Dashboard(): JSX.Element {
 
@@ -29,12 +20,10 @@ function Dashboard(): JSX.Element {
     const [showShareLink, setShowShareLink] = useState<string>("")
     let router = useRouter()
 
-    const showErrorMessage = (message) => {
-        setIsError(message)
-    }
+    const showErrorMessage = (message) => setIsError(message)
 
     useEffect(()=> {
-        checkAuth().then((auth) => {
+        checkAuth().then((auth: boolean) => {
             if (!auth) {
                 router.push("/login")
             }else {
@@ -43,6 +32,14 @@ function Dashboard(): JSX.Element {
         })
     }, [])
 
+    const fetcher = async () : Promise<APIResponseFiles> => {
+        const res = await fetch('http://localhost:3000/api/files', {
+                credentials: "include",
+                method: 'POST'
+            }
+        )
+        return await res.json()
+    }
     const dataSWR = useSWR<APIResponseFiles>('/api/files', fetcher)
     let userData = dataSWR.data
 
@@ -54,50 +51,88 @@ function Dashboard(): JSX.Element {
         setFiltered(newFiles)
     }
 
-    const getFilteredFiles = (): JSX.Element[] => {
-        return filtered.map((file: UserFileModel, index: number) => {
-            return(<File onShareFile={onShareFile} onUnshareFile={onUnshareFile} filename={file.filename} fileAccessCode={file.access_code} shared={file.shared} />)
-        })
-    }
-
     const getUserFiles = (): JSX.Element[] => {
+        if (filtered.length > 0) {
+            return filtered.map((file: UserFileModel, index: number) => {
+                return(<File onDeleteFile={onDeleteFile} onShareFile={onShareFile} onUnshareFile={onUnshareFile}
+                             filename={file.filename} fileAccessCode={file.access_code}
+                             refresh={dataSWR.revalidate} shared={file.shared} />)
+            })
+        }
         return userData.data.files.map((file: UserFileModel, index: number) => {
-            return(<File onShareFile={onShareFile} onUnshareFile={onUnshareFile} filename={file.filename} fileAccessCode={file.access_code} shared={file.shared} />)
+            return(<File onDeleteFile={onDeleteFile} onShareFile={onShareFile} onUnshareFile={onUnshareFile}
+                         filename={file.filename} fileAccessCode={file.access_code}
+                         refresh={dataSWR.revalidate} shared={file.shared} />)
         })
     }
 
-    const onShareFile = (accessCode) => {
-        setShareLink(accessCode)
-    }
+    const onShareFile = (accessCode) => setShareLink(accessCode)
 
     const onClickShare = async (accessCode) => {
         let dateTime = new Date();
         dateTime.setHours(dateTime.getHours() + timeInput);
         let timeStamp = (dateTime.getTime() / 1000).toFixed(0)
 
-        const res = await fetch('http://localhost:3000/api/share',
-            {
-                body: JSON.stringify(
-                    {
-                        accesscode: accessCode,
-                        sharetime: timeStamp.toString()
-                    }),
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                method: 'POST'
-            }
-        )
+        const res = await fetch('http://localhost:3000/api/share', {
+            body: JSON.stringify({
+                accesscode: accessCode,
+                sharetime: timeStamp.toString()
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: 'POST'
+        })
+
         const result = await res.json() as APIResponseShare
 
         if (result.success) {
             setShowShareLink(result.data.accesslink)
+            await dataSWR.revalidate()
         }else {
             setIsError(result.message)
         }
     }
 
-    const onUnshareFile = () => {}
+    const onUnshareFile = async (accessCode) => {
+        const res = await fetch('http://localhost:3000/api/unshare', {
+            body: JSON.stringify({
+                accesscode: accessCode,
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: 'POST'
+        })
+
+        const result = await res.json() as APIResponseShare
+
+        if (result.success) {
+            await dataSWR.revalidate()
+        } else {
+            setIsError(result.message)
+        }
+    }
+
+    const onDeleteFile = async (accessCode) => {
+        const res = await fetch('http://localhost:3000/api/delete', {
+            body: JSON.stringify({
+                accesscode: accessCode,
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: 'POST'
+        })
+
+        const result = await res.json() as APIResponseShare
+
+        if (result.success) {
+            await dataSWR.revalidate()
+        } else {
+            setIsError(result.message)
+        }
+    }
 
     return (
         (userLoggedin && userData) ? (
@@ -110,7 +145,7 @@ function Dashboard(): JSX.Element {
                             <div className={"container-fluid"}>
                                 <FileContainer>
                                     {
-                                        filtered.length > 0 ? (getFilteredFiles()) : (getUserFiles())
+                                        getUserFiles()
                                     }
                                 </FileContainer>
                                 <FileUpload onUpload={dataSWR.revalidate} onError={showErrorMessage} />
@@ -120,16 +155,20 @@ function Dashboard(): JSX.Element {
                 </div>
 
                 <SweetAlert onConfirm={()=>{setIsError(null)}} title={isError} danger show={isError!==null}
-                                           openAnim={{name: 'showSweetAlert', duration: 200}}
-                                           closeAnim={{name: 'hideSweetAlert', duration: 200}}
-                />
-                <SweetAlert onConfirm={()=>{onClickShare(shareLink); setShareLink("");}} title={"Set time limit"} show={shareLink !== ""}>
+                            openAnim={{name: 'showSweetAlert', duration: 200}}
+                            closeAnim={{name: 'hideSweetAlert', duration: 200}}/>
+
+                <SweetAlert onConfirm={()=>{onClickShare(shareLink); setShareLink("");}} title={"Set time limit"} show={shareLink !== ""}
+                            openAnim={{name: 'showSweetAlert', duration: 200}}
+                            closeAnim={{name: 'hideSweetAlert', duration: 200}}>
                     <input type="text" className="border rounded-pill border-primary shadow-sm" inputMode="numeric" placeholder="Hours"
                            style={{padding: "5px 20px", width: "100px",textAlign: "center", outlineStyle: "none"}}
                            onChange={(event: ChangeEvent<HTMLInputElement>)=>{setTimeInput(parseInt(event.target.value))}}/>
                 </SweetAlert>
 
-                <SweetAlert onConfirm={()=>{setShowShareLink("");}} title={"Copy Link"} show={showShareLink !== ""}>
+                <SweetAlert onConfirm={()=>{setShowShareLink("");}} title={"Copy Link"} show={showShareLink !== ""}
+                            openAnim={{name: 'showSweetAlert', duration: 200}}
+                            closeAnim={{name: 'hideSweetAlert', duration: 200}}>
                     <a href={document.location.origin+"/api/download/"+showShareLink}>{document.location.origin+"/api/download/"+showShareLink}</a>
                 </SweetAlert>
             </>

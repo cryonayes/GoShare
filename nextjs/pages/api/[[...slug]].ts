@@ -3,13 +3,14 @@ import {NextApiRequest, NextApiResponse} from "next";
 const apiURLs = {
     "/api/files" : "http://localhost:21942/api/files",
     "/api/authcheck" : "http://localhost:21942/api/authcheck",
-    "/api/register" : "http://localhost:21942/api/register", // OK
-    "/api/share" : "http://localhost:21942/api/share"
+    "/api/register" : "http://localhost:21942/api/register",
+    "/api/share" : "http://localhost:21942/api/share",
+    "/api/unshare": "http://localhost:21942/api/unshare",
+    "/api/delete": "http://localhost:21942/api/delete"
 }
 
 async function fetchDefault(url : string, body : string, headers, method : "GET" | "POST") {
-    return await fetch(url,
-        {
+    return await fetch(url, {
             body: body,
             headers: headers,
             method: method,
