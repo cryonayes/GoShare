@@ -53,13 +53,13 @@ function Dashboard(): JSX.Element {
 
     const getFilteredFiles = (): JSX.Element[] => {
         return filtered.map((file: UserFileModel, index: number) => {
-            return (<File filename={file.filename} dropdownID={index}/>)
+            return (<File filename={file.filename} />)
         })
     }
 
     const getUserFiles = (): JSX.Element[] => {
         return userData.data.files.map((file: UserFileModel, index: number) => {
-            return(<File filename={file.filename} downloadLink={file.access_code} dropdownID={index}/>)
+            return(<File filename={file.filename} downloadLink={file.access_code} />)
         })
     }
 
