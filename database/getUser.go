@@ -5,15 +5,15 @@ import (
 	"github.com/cryonayes/GoShare/utils"
 )
 
-func GetUserFromEmail(email string) (*models.User, *utils.ApiError) {
+func GetUserFromEmail(email string) (*models.User, error) {
 	if connected := CheckConnection(); !connected {
-		return nil, utils.NewJSONError(utils.DatabaseConnErr)
+		return nil, utils.NewError(utils.DatabaseConnErr)
 	}
 
 	var user = &models.User{}
 	err := DBConn.Where("email = ?", email).First(&user).Error
 	if err != nil {
-		return nil, utils.NewJSONError(utils.UserNotFound)
+		return nil, utils.NewError(utils.UserNotFound)
 	}
 
 	return user, nil

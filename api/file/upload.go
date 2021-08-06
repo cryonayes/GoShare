@@ -26,7 +26,7 @@ func EndpointUploadFile(ctx *fiber.Ctx) error {
 	}
 
 	authenticated, userEmail := api.CheckAuthentication(ctx)
-	if !authenticated {
+	if !authenticated || userEmail == "" {
 		return ctx.JSON(api.Failure{Success: false, Message: utils.Unauthenticated, Data: nil})
 	}
 
@@ -54,23 +54,26 @@ func EndpointUploadFile(ctx *fiber.Ctx) error {
 		Owner:          userEmail,
 		IsEncrypted:    false,
 		CreationDate:   time.Now(),
+		Shared:         false,
+		AccessToken:    "",
 	}
-	// TODO(Create unique access code for external access)
+
 	err = ctx.SaveFile(file, fmt.Sprintf("./uploads/%s", uploadedFile.HashedFileName))
 	if err != nil {
 		return ctx.JSON(api.Failure{Success: false, Message: utils.FileSavingError, Data: nil})
 	}
 
 	dbResponse := database.DBConn.Create(&uploadedFile)
-	if mErr := dbResponse.Error; mErr != nil {
-		err := os.Remove(fmt.Sprintf(UploadDir + "/" + uploadedFile.HashedFileName))
-		if err != nil {
-			return ctx.JSON(utils.NewJSONError(utils.UploadError))
-		}
-		return ctx.JSON(utils.NewJSONError(utils.DatabaseConnErr))
+	if dbResponse.Error != nil {
+		_ = os.Remove(fmt.Sprintf(UploadDir + "/" + uploadedFile.HashedFileName))
+		return ctx.JSON(api.Failure{
+			Success: false,
+			Message: utils.ErrorWhileUploading,
+			Data:    nil,
+		})
 	}
 
-	return ctx.JSON(&api.Success{
+	return ctx.JSON(api.Success{
 		Success: true,
 		Message: "File uploaded!",
 		Data: appmodels.UserFileModel{

@@ -41,10 +41,11 @@ func Login(c *fiber.Ctx) error {
 		return c.JSON(Failure{Success: false, Message: utils.InvalidCredentials, Data: nil})
 	}
 
+	expirationDate := time.Now().Add(time.Hour * 8)
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, &Claims{
 		Email: userData.Email,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
+			ExpiresAt: expirationDate.Unix(),
 		},
 	})
 
@@ -58,7 +59,7 @@ func Login(c *fiber.Ctx) error {
 	cookie := fiber.Cookie{
 		Name:     "token",
 		Value:    token,
-		Expires:  time.Now().Add(time.Hour * 8),
+		Expires:  expirationDate,
 		HTTPOnly: true,
 	}
 	c.Cookie(&cookie)
@@ -112,8 +113,13 @@ func Register(ctx *fiber.Ctx) error {
 			Data:    nil,
 		})
 	}
-
-	password, _ := bcrypt.GenerateFromPassword([]byte(userRegister.Password), 14)
+	if userRegister.Password != userRegister.PasswordRepeat {
+		return ctx.JSON(Failure{
+			Success: false,
+			Message: utils.PasswordRepeatWrong,
+			Data:    nil,
+		})
+	}
 
 	user := appmodels.User{}
 	database.DBConn.Where("email = ?", userRegister.Email).First(&user)
@@ -122,6 +128,7 @@ func Register(ctx *fiber.Ctx) error {
 		return ctx.JSON(Failure{Success: false, Message: utils.UserAlreadyExists, Data: nil})
 	}
 
+	password, _ := bcrypt.GenerateFromPassword([]byte(userRegister.Password), 14)
 	user = appmodels.User{
 		Email:    userRegister.Email,
 		Password: string(password),
@@ -137,7 +144,7 @@ func Register(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(Success{
 		true,
-		"User registered!",
+		utils.UserRegistered,
 		nil,
 	})
 }

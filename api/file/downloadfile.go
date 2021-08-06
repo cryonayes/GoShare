@@ -18,13 +18,23 @@ func DownloadFile(ctx *fiber.Ctx) error {
 		})
 	}
 
+	accessCode := ctx.Params("accesscode", "")
+	if accessCode == "" {
+		return ctx.JSON(api.Failure{
+			Success: false,
+			Message: utils.InvalidFileCode,
+			Data:    nil,
+		})
+	}
+
 	fileAccessToken := ctx.Params("accesstoken", "")
 	if fileAccessToken != "" {
 		var userFile = appmodels.FileModel{}
-		database.DBConn.Table("file_models").Where("access_token = ?", fileAccessToken).First(&userFile)
+		database.DBConn.Table("file_models").
+			Where("access_code = ? AND access_token = ?", accessCode, fileAccessToken).
+			First(&userFile)
 
 		if userFile.Shared && userFile.ShareTime.Unix() <= time.Now().Unix() {
-
 			database.DBConn.Model(userFile).Where("access_token = ?", fileAccessToken).Updates(map[string]interface{}{
 				"shared":       false,
 				"share_time":   time.Now(),
@@ -48,15 +58,6 @@ func DownloadFile(ctx *fiber.Ctx) error {
 		return ctx.JSON(api.Failure{
 			Success: false,
 			Message: utils.PleaseLogin,
-			Data:    nil,
-		})
-	}
-
-	accessCode := ctx.Params("accesscode", "")
-	if accessCode == "" {
-		return ctx.JSON(api.Failure{
-			Success: false,
-			Message: utils.InvalidFileCode,
 			Data:    nil,
 		})
 	}

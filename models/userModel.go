@@ -11,10 +11,11 @@ type User struct {
 }
 
 type UserRegister struct {
-	Name     string `json:"name"`
-	LastName string `json:"lastname"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Name           string `json:"name"`
+	LastName       string `json:"lastname"`
+	Email          string `json:"email"`
+	Password       string `json:"password"`
+	PasswordRepeat string `json:"passwordRepeat"`
 }
 
 func (d *User) String() string {

@@ -17,14 +17,7 @@ type FileModel struct {
 }
 
 type FileShareDatas struct {
-	AccessCode string `json:"accesscode"`
-	ShareTime  string `json:"sharetime"`
-}
-
-type FileAccessCode struct {
-	AccessCode string `json:"accesscode"`
-}
-
-type FileAccessLink struct {
-	AccessLink string `json:"accesslink"`
+	AccessCode string `json:"accesscode,omitempty"`
+	ShareTime  string `json:"sharetime,omitempty"`
+	AccessLink string `json:"accesslink,omitempty"`
 }

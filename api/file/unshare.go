@@ -27,8 +27,8 @@ func UnshareFile(ctx *fiber.Ctx) error {
 		})
 	}
 
-	var fileData = appmodels.FileAccessCode{}
-	err := ctx.BodyParser(&fileData)
+	var fileShareData = appmodels.FileShareDatas{}
+	err := ctx.BodyParser(&fileShareData)
 	if err != nil {
 		return ctx.JSON(api.Failure{
 			Success: false,
@@ -38,7 +38,7 @@ func UnshareFile(ctx *fiber.Ctx) error {
 	}
 
 	var userFile appmodels.FileModel
-	database.DBConn.Table("file_models").Where("access_code = ?", fileData.AccessCode).First(&userFile)
+	database.DBConn.Table("file_models").Where("access_code = ?", fileShareData.AccessCode).First(&userFile)
 	if userFile.Owner != email {
 		return ctx.JSON(api.Failure{
 			Success: false,
@@ -47,7 +47,7 @@ func UnshareFile(ctx *fiber.Ctx) error {
 		})
 	}
 
-	dbExec := database.DBConn.Table("file_models").Where("access_code = ?", fileData.AccessCode).Updates(map[string]interface{}{
+	dbExec := database.DBConn.Table("file_models").Where("access_code = ?", fileShareData.AccessCode).Updates(map[string]interface{}{
 		"shared":     false,
 		"share_time": time.Now(),
 	})

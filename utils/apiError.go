@@ -1,13 +1,8 @@
 package utils
 
 import (
-	"encoding/json"
 	"errors"
 )
-
-type ApiError struct {
-	Error string `json:"error"`
-}
 
 const (
 	UserNotFound        = "User not found!"
@@ -28,6 +23,7 @@ const (
 	ErrorWhileDeleting  = "Error while deleting file from server!"
 	FileDeleted         = "File deleted!"
 	FileUpdated         = "File updated!"
+	ErrorWhileUploading = "Error while uploading file!"
 	ErrorWhileUnshare   = "File update failed!"
 	InvalidTimeValue    = "Invalid time value!"
 	InvalidUsername     = "Username is invalid!"
@@ -35,22 +31,14 @@ const (
 	InvalidPassword     = "Password is invalid!"
 	InvalidName         = "Name is invalid!"
 	InvalidLastname     = "Lastname is invalid!"
+	PasswordRepeatWrong = "Passwords doesn't match!"
+	UserRegistered		= "User registered!"
 	DatabaseConnErr     = "Database connection failed!"
 	RequestError        = "Invalid request!"
 	InternalServerError = "Internal server error!"
 	InvalidFileType     = "File type not allowed!"
 )
 
-func (e *ApiError) String() string {
-	out, _ := json.Marshal(e)
-	return string(out)
-}
-
 func NewError(error string) error {
 	return errors.New(error)
-}
-
-func NewJSONError(error string) *ApiError {
-	err := &ApiError{Error: error}
-	return err
 }
