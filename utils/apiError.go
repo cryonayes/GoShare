@@ -32,7 +32,7 @@ const (
 	InvalidName         = "Name is invalid!"
 	InvalidLastname     = "Lastname is invalid!"
 	PasswordRepeatWrong = "Passwords doesn't match!"
-	UserRegistered		= "User registered!"
+	UserRegistered      = "User registered!"
 	DatabaseConnErr     = "Database connection failed!"
 	RequestError        = "Invalid request!"
 	InternalServerError = "Internal server error!"

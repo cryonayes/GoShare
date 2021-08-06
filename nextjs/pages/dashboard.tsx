@@ -45,6 +45,11 @@ function Dashboard(): JSX.Element {
 
     const filterFiles = (navbarKeyEvent: React.KeyboardEvent<HTMLInputElement>) => {
         let searchKeyword = navbarKeyEvent.currentTarget.value
+        if (searchKeyword == "") {
+            setFiltered([])
+            return
+        }
+
         let newFiles = userData.data.files.filter((file: UserFileModel) => {
             return file.filename.includes(searchKeyword);
         })
