@@ -1,13 +1,15 @@
 package file
 
 import (
+	"math/rand"
+	"strconv"
+	"time"
+
 	"github.com/cryonayes/GoShare/api"
 	"github.com/cryonayes/GoShare/database"
 	appmodels "github.com/cryonayes/GoShare/models"
 	"github.com/cryonayes/GoShare/utils"
 	"github.com/gofiber/fiber/v2"
-	"strconv"
-	"time"
 )
 
 func ShareFile(ctx *fiber.Ctx) error {
@@ -84,9 +86,11 @@ func ShareFile(ctx *fiber.Ctx) error {
 		})
 	}
 
+	rand.Seed(time.Now().Unix())
+
 	userFile.Shared = true
 	userFile.ShareTime = convertedTime
-	userFile.AccessToken = utils.GetMD5String(userFile.ShareTime.String() + userFile.AccessCode)
+	userFile.AccessToken = utils.GetMD5String(userFile.ShareTime.String() + userFile.AccessCode + string(rand.Int31()))
 
 	database.DBConn.Table("file_models").Where("access_code = ?", fileShareData.AccessCode).Updates(&userFile)
 
